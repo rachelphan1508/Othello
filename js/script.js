@@ -5,9 +5,8 @@ var pieces_layer;
 //turn 2 = black turns
 var turn = 1;
 
-
 //black is 2
-//white is 1 
+//white is 1
 //for the starting state
 var pieces = [
     [0,0,0,0,0,0,0,0],
