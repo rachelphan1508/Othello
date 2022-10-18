@@ -1,12 +1,12 @@
-
-
 #page {
     width: 100%;
     height: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
+
 
 #board {
     position: relative;
@@ -20,4 +20,41 @@
     position: absolute;
     border-radius: 50px;
     box-shadow: 0 0 15px gray;
+}
+
+#scoreboard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 32.8rem; 
+    height: 3rem;
+    background-color: blanchedalmond;
+}
+ 
+
+.score {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0px 1rem;
+}
+
+.icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50px;
+    box-shadow: 0 0 5px lightgray;
+}
+
+#white-icon {
+    background-color: white;
+}
+
+
+
+#black-icon {
+    background-color: black;
 }
