@@ -327,6 +327,8 @@ class Board {
     }
     //calculate the white and black pieces
     calScore() {
+        this.black = 0;
+        this.white = 0;
         for(var i = 0; i < 8; i++) {
             for(var j = 0; j < 8; j++){
                 if(this.pieces[i][j] == "2") this.black++;
@@ -358,13 +360,22 @@ const initial_state = new Board(pieces);
 
 
 window.onload = function () {
-    pieces_layer = document.getElementById("pieces_layer")
+    pieces_layer = document.getElementById("pieces_layer");
     drawBoard();
     drawpieces();
 }
 
 
+function updatescoreboard() {
+    const w_score = document.getElementById("white-score");
+    const b_score = document.getElementById("black-score");
+    initial_state.calScore();
+    w_score.textContent = initial_state.white;
+    b_score.textContent = initial_state.black;
+}
+
 function drawpieces() {
+    updatescoreboard();
     pieces_layer.innerHTML = "";
     initial_state.availableBoard();
     for (var i = 0; i < 8; i++) {
@@ -434,13 +445,13 @@ function clickedBoard(row, column) {
             turn = 2;
         }
         else if (turn == 2) {
-            initial_state.pieces[row][column] = "2 ";
+            initial_state.pieces[row][column] = "2";
             initial_state.flipBoard(row, column);
             turn = 1;
         }
     }
+    
     clearBoard();
     drawpieces();
 }
-
 //*****till this point we are just rendering the board ******/
