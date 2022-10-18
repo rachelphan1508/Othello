@@ -1,3 +1,25 @@
+
+//class Board{
+// public:
+//          vector<vector<int> ps;
+//          vector<string> move; 
+//          int white = 0; 
+//          int black = 0;
+//          clearMove();
+//          availableMove();     
+//}
+//ps is a 2d vector that stores the value of the board
+//1 is white
+//2 is black
+//3 is avalible move
+//0 is empty
+//move is a string vector that takes U,D,R,L,UR,UL,DL,DR as direction in the corresponded 2d board
+//white stores the white pieces on in the board right now
+//black stores the black pieces in the board right now
+//clearMove() empty all of the moves in the 2d board;
+//availableMove() update the board with availeble moves in the board and turn that move spot into value 3 
+//and push the direciton move string into the move value;
+//****************************-Object Class Starts Here-************************************* */
 class Board {
     constructor (ps) {
         this.pieces = ps;
@@ -11,6 +33,8 @@ class Board {
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
         ]
+        this.white = 0;
+        this.black = 0;
     }
     clearMove() {
         this.move = [
@@ -99,8 +123,6 @@ class Board {
                                 q = 8;
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
-                                console.log(k + " column is " + q);
-                                console.log("coming from " + i + " and " + j);
                                 this.pieces[k][q] = 3;
                                 this.move[k][q].push("UR");
                                 k = -1;
@@ -125,8 +147,6 @@ class Board {
                                 q = 8;
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
-                                console.log(k + " column is " + q);
-                                console.log("coming from " + i + " and " + j);
                                 this.pieces[k][q] = 3;
                                 this.move[k][q].push("DR");
                                 k = 8;
@@ -190,9 +210,142 @@ class Board {
             }
         }
     }
+    //we check the direction array from the board object
+    //flip the corresponding direction
+    flipBoard(row, column) {
+        var direction = this.move[row][column];
+        for(var i = 0; i < direction.length; i++) {
+            //U flips to the downwards direction
+            if(direction[i] == "U") {
+                for(var j = row+1; j < 8; j++) {
+                    if(this.pieces[j][column] != turn){
+                        this.pieces[j][column] = turn;
+                    }
+                    else {
+                        j = 8;
+                    }
+                }
+            }
+            //D flips the upwards direction
+            if(direction[i] == "D") {
+                for(var j = row-1; j >= 0; j--) {
+                    if(this.pieces[j][column] != turn){
+                        this.pieces[j][column] = turn;
+                    }
+                    else {
+                        j = -1;
+                    }
+                }
+            }
+            //R flips the leftwards direction
+            if(direction[i] == "R") {
+                for(var j = column-1; j >= 0; j--) {
+                    if(this.pieces[row][j] != turn){
+                        this.pieces[row][j] = turn;
+                    }
+                    else {
+                        j = -1;
+                    }
+                }
+            }
+            //L flips the rightwards direction
+            if(direction[i] == "L") {
+                for(var j = column+1; j < 8; j++) {
+                    if(this.pieces[row][j] != turn){
+                        this.pieces[row][j] = turn;
+                    }
+                    else {
+                        j = 8;
+                    }
+                }
+            }
+            //UR flips to the down left direction
+            if(direction[i] == "UR") {
+                var k = row+1;
+                var q = column-1;
+                while(k < 8 && q >= 0) {
+                    if(this.pieces[k][q] != turn){
+                        this.pieces[k][q] = turn;
+                    }
+                    else {
+                        k = 8;
+                        q = -1;
+                    }
+                    k++;
+                    q--;
+                }
+            }
+            //DR flips to the up left direction
+            if(direction[i] == "DR") {
+                var k = row-1;
+                var q = column-1;
+                while(k >= 0 && q >= 0) {
+                    if(this.pieces[k][q] != turn){
+                        this.pieces[k][q] = turn;
+                    }
+                    else {
+                        k = -1;
+                        q = -1;
+                    }
+                    k--;
+                    q--;
+                }
+            }
+            //DL flips the up right direction
+            if(direction[i] == "DL") {
+                var k = row-1;
+                var q = column+1;
+                while(k >= 0 && q < 8) {
+                    if(this.pieces[k][q] != turn){
+                        this.pieces[k][q] = turn;
+                    }
+                    else {
+                        k = -1;
+                        q = 8;
+                    }
+                    k--;
+                    q++;
+                }
+            }
+            //UL flips the down right direction
+            if(direction[i] == "UL") {
+                var k = row+1;
+                var q = column+1;
+                while(k < 8 && q < 8) {
+                    if(this.pieces[k][q] != turn){
+                        this.pieces[k][q] = turn;
+                    }
+                    else {
+                        k = 8;
+                        q = 8;
+                    }
+                    k++;
+                    q++;
+                }
+            }
+        }
+    }
+    //calculate the white and black pieces
+    calScore() {
+        this.black = 0;
+        this.white = 0;
+        for(var i = 0; i < 8; i++) {
+            for(var j = 0; j < 8; j++){
+                if(this.pieces[i][j] == "2") this.black++;
+                if(this.pieces[i][j] == "1") this.white++;
+            }
+        }
+    }
 }
 
 
+//****************************-Object Class Ends Here-************************************* */
+var gap = 5;
+var cellWidth = 60;
+var pieces_layer;
+//turn 1 = white turns
+//turn 2 = black turns
+var turn = 1;
 var pieces = [
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -204,29 +357,27 @@ var pieces = [
     [0, 0, 0, 0, 0, 0, 0, 0]
 ]
 
+//initalize the starting board
 const initial_state = new Board(pieces);
-
-var gap = 5;
-var cellWidth = 60;
-var pieces_layer;
-//turn 1 = white turns
-//turn 2 = black turns
-var turn = 1;
-
-
-//black is 2
-//white is 1 
-//for the starting state
 
 
 window.onload = function () {
-    pieces_layer = document.getElementById("pieces_layer")
+    pieces_layer = document.getElementById("pieces_layer");
     drawBoard();
     drawpieces();
 }
 
 
+function updatescoreboard() {
+    const w_score = document.getElementById("white-score");
+    const b_score = document.getElementById("black-score");
+    initial_state.calScore();
+    w_score.textContent = initial_state.white;
+    b_score.textContent = initial_state.black;
+}
+
 function drawpieces() {
+    updatescoreboard();
     pieces_layer.innerHTML = "";
     initial_state.availableBoard();
     for (var i = 0; i < 8; i++) {
@@ -238,14 +389,14 @@ function drawpieces() {
                 piece.style.height = cellWidth - 4;
                 piece.style.left = (cellWidth + gap) * j + gap + 2;
                 piece.style.top = (cellWidth + gap) * i + gap + 2;
-                if (pieces[i][j] == 1) piece.style.backgroundColor = "white";
-                if (pieces[i][j] == 2) piece.style.backgroundColor = "black";
-                if (pieces[i][j] == 3) {
-                    piece.style.width = cellWidth - 50;
-                    piece.style.height = cellWidth - 50;
-                    piece.style.left = (cellWidth + gap) * j + gap + 25;
-                    piece.style.top = (cellWidth + gap) * i + gap + 25;
-                    piece.style.backgroundColor = "red";
+                if (initial_state.pieces[i][j] == 1) piece.style.backgroundColor = "white";
+                if (initial_state.pieces[i][j] == 2) piece.style.backgroundColor = "black";
+                if (initial_state.pieces[i][j] == 3) {
+                    piece.style.width = cellWidth - 55;
+                    piece.style.height = cellWidth - 55;
+                    piece.style.left = (cellWidth + gap) * j + gap + 27.5;
+                    piece.style.top = (cellWidth + gap) * i + gap + 27.5;
+                    piece.style.backgroundColor = "yellow";
                 }
                 document.getElementById("board").appendChild(piece);
             }
@@ -271,6 +422,7 @@ function drawBoard() {
     }
 }
 
+//clear all of the div that we rendered on the board with the class name "piece"
 function clearBoard() {
     const elements = document.getElementsByClassName("piece");
     while (elements.length > 0) {
@@ -284,138 +436,47 @@ function clearBoard() {
     initial_state.clearMove();
 }
 
+//clickedBoard gives i and j position that the user clicked on the boar
+//call clearBoard to get rid of the 3s in the board and clean the div
+//and update the new board by calling drawpieces function 
 function clickedBoard(row, column) {
     if (initial_state.pieces[row][column] == 3) {
         if (turn == 1) {
             initial_state.pieces[row][column] = "1";
-            flipBoard(row, column);
+            initial_state.flipBoard(row, column);
             turn = 2;
         }
         else if (turn == 2) {
-            initial_state.pieces[row][column] = "2 ";
-            flipBoard(row, column);
+            initial_state.pieces[row][column] = "2";
+            initial_state.flipBoard(row, column);
             turn = 1;
         }
     }
+    
     clearBoard();
     drawpieces();
 }
+//****************************-End Rendering-************************************* */
+//****************************-Minmax algorithmn Starts Here-************************************* */
 
-
-//we check the direction array from the board object
-//flip the corresponding direction
-function flipBoard(row, column) {
-    var direction = initial_state.move[row][column];
-    for(var i = 0; i < direction.length; i++) {
-        //U flips to the downwards direction
-        if(direction[i] == "U") {
-            for(var j = row+1; j < 8; j++) {
-                if(initial_state.pieces[j][column] != turn){
-                    initial_state.pieces[j][column] = turn;
+/*function minimax (s, is_max, depth){
+    var state = new Board(s);
+    //base case 50 rounds  just a random estimate of how many rounds
+    if(depth == 50) {
+        state.calScore();
+        return state.black;
+    }
+    //we are at the maximizer 
+    if(is_max == true) {
+        var highest = -100000;
+        //for each availe state
+        for(var i = 0; i < 8; i++) {
+            for(var j = 0; j < 8; j++) {
+                //we found an available move
+                if(state.pieces[i][j] == 3) {
+                    
                 }
-                else {
-                    j = 8;
-                }
-            }
-        }
-        //D flips the upwards direction
-        if(direction[i] == "D") {
-            for(var j = row-1; j >= 0; j--) {
-                if(initial_state.pieces[j][column] != turn){
-                    initial_state.pieces[j][column] = turn;
-                }
-                else {
-                    j = -1;
-                }
-            }
-        }
-        //R flips the leftwards direction
-        if(direction[i] == "R") {
-            for(var j = column-1; j >= 0; j--) {
-                if(initial_state.pieces[row][j] != turn){
-                    initial_state.pieces[row][j] = turn;
-                }
-                else {
-                    j = -1;
-                }
-            }
-        }
-        //L flips the rightwards direction
-        if(direction[i] == "L") {
-            for(var j = column+1; j < 8; j++) {
-                if(initial_state.pieces[row][j] != turn){
-                    initial_state.pieces[row][j] = turn;
-                }
-                else {
-                    j = 8;
-                }
-            }
-        }
-        //UR flips to the down left direction
-        if(direction[i] == "UR") {
-            var k = row+1;
-            var q = column-1;
-            while(k < 8 && q >= 0) {
-                if(initial_state.pieces[k][q] != turn){
-                    initial_state.pieces[k][q] = turn;
-                }
-                else {
-                    k = 8;
-                    q = -1;
-                }
-                k++;
-                q--;
-            }
-        }
-        //DR flips to the up left direction
-        if(direction[i] == "DR") {
-            var k = row-1;
-            var q = column-1;
-            while(k >= 0 && q >= 0) {
-                if(initial_state.pieces[k][q] != turn){
-                    initial_state.pieces[k][q] = turn;
-                }
-                else {
-                    k = -1;
-                    q = -1;
-                }
-                k--;
-                q--;
-            }
-        }
-        //DL flips the up right direction
-        if(direction[i] == "DL") {
-            var k = row-1;
-            var q = column+1;
-            while(k >= 0 && q < 8) {
-                if(initial_state.pieces[k][q] != turn){
-                    initial_state.pieces[k][q] = turn;
-                }
-                else {
-                    k = -1;
-                    q = 8;
-                }
-                k--;
-                q++;
-            }
-        }
-        //UL flips the down right direction
-        if(direction[i] == "UL") {
-            var k = row+1;
-            var q = column+1;
-            while(k < 8 && q < 8) {
-                if(initial_state.pieces[k][q] != turn){
-                    initial_state.pieces[k][q] = turn;
-                }
-                else {
-                    k = 8;
-                    q = 8;
-                }
-                k++;
-                q++;
             }
         }
     }
-}
-
-//*****till this point we are just rendering the board ******/
+}*/
