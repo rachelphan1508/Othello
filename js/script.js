@@ -43,6 +43,7 @@ class Board {
         this.white = 0;
         this.black = 0;
         this.score = 0; // mobility + corner + edge
+        //this.played = 0;
     }
     constructor() {
         this.white = 0;
@@ -68,6 +69,10 @@ class Board {
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0]
         ]
+        // number of moves played - used to determined which phase of the
+        // game we are at to use the correct evaluation function
+        // for our MiniMax Algorithm.
+       //this.played = 0;
     }
     clearMove() {
         this.board = [
@@ -506,6 +511,7 @@ function clearBoard() {
 //call clearBoard to get rid of the 3s in the board and clean the div
 //and update the new board by calling drawpieces function
 function clickedBoard(row, column) {
+    //curBoard.played++;
     if (curBoard.pieces[row][column] == 3) {
         if (turn == 1) {
             curBoard.pieces[row][column] = "1";
@@ -543,7 +549,7 @@ function boardAfterClicked(board, row, column, curTurn) {
 
 
 // Pay attention to the case when a user skips
-function minimax (s, is_max, depth){
+function minimax(s, is_max, depth){
 
     var curTurn = is_max ? 2 : 1;
     // if reaches the maximum depth, returns value
