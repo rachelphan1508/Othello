@@ -2,16 +2,16 @@
 //class Board{
 // public:
 //          vector<vector<int> ps;
-//          vector<string> move; 
-//          int white = 0; 
+//          vector<string> move;
+//          int white = 0;
 //          int black = 0;
 //          clearMove();
-//          availableMove();     
+//          availableMove();
 //}
 //ps is a 2d vector that stores the value of the board
 //1 is white
 //2 is black
-//3 is avalible move
+//3 is available move
 //0 is empty
 //move is a string vector that takes U,D,R,L,UR,UL,DL,DR as direction in the corresponded 2d board
 //white stores the white pieces on in the board right now
@@ -19,11 +19,16 @@
 //clearMove() empty all of the moves in the 2d board;
 //availableMove() update the board with availeble moves in the board and turn that move spot into value 3 
 //and push the direciton move string into the move value;
+
+
+
 //****************************-Object Class Starts Here-************************************* */
 class Board {
     constructor (ps) {
+
+        // why do we need both?????
         this.pieces = ps;
-        this.move = [
+        this.board = [
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
@@ -35,9 +40,10 @@ class Board {
         ]
         this.white = 0;
         this.black = 0;
+        this.score = 0; // mobility + corner + edge
     }
     clearMove() {
-        this.move = [
+        this.board = [
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
@@ -48,6 +54,7 @@ class Board {
             [[], [], [], [], [], [], [], []],
         ]
     }
+    //#region availableBoard
     availableBoard() {
         var check = 0;
         if (turn == 2) check = 1;
@@ -63,14 +70,14 @@ class Board {
                                 k = -1;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
                                 this.pieces[k][j] = 3;
-                                this.move[k][j].push("U");
+                                this.board[k][j].push("U");
                                 //we have to some how store this
                                 k = -1;
                             }
                         }
                     }
                 }
-                
+
                 //check for D
                 if (i != 6 && i != 7) {
                     if (this.pieces[i][j] == turn && this.pieces[i + 1][j] == check) {
@@ -78,7 +85,7 @@ class Board {
                             if (this.pieces[k][j] == turn) k = 8;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
                                 this.pieces[k][j] = 3;
-                                this.move[k][j].push("D");
+                                this.board[k][j].push("D");
                                 k = 8;
                             }
                         }
@@ -91,13 +98,13 @@ class Board {
                             if (this.pieces[i][k] == turn) k = -1;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
-                                this.move[i][k].push("L");
+                                this.board[i][k].push("L");
                                 k = -1;
                             }
                         }
                     }
                 }
-                
+
                 //check for R
                 if (j != 6 && j != 7) {
                     if (this.pieces[i][j] == turn && this.pieces[i][j + 1] == check) {
@@ -105,13 +112,13 @@ class Board {
                             if (this.pieces[i][k] == turn) k = 8;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
-                                this.move[i][k].push("R");
+                                this.board[i][k].push("R");
                                 k = 8;
                             }
                         }
                     }
                 }
-                
+
                 //check for top right
                 if (i > 1 && j < 6) {
                     if (this.pieces[i][j] == turn && this.pieces[i - 1][j + 1] == check) {
@@ -124,22 +131,22 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.move[k][q].push("UR");
+                                this.board[k][q].push("UR");
                                 k = -1;
                                 q = 8;
                             }
-                            else { 
+                            else {
                                 k--;
                                 q++;
                             }
                         }
                     }
                 }
-                
+
                 //check for bottom right
                 if (i < 6 && j < 6) {
                     if (this.pieces[i][j] == turn && this.pieces[i + 1][j + 1] == check) {
-                        var k = i + 1; 
+                        var k = i + 1;
                         var q = j + 1;
                         while(k < 8 && q < 8) {
                             if (this.pieces[k][q] == turn) {
@@ -148,22 +155,22 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.move[k][q].push("DR");
+                                this.board[k][q].push("DR");
                                 k = 8;
                                 q = 8;
                             }
-                            else { 
+                            else {
                                 k++;
                                 q++;
                             }
                         }
                     }
                 }
-                
+
                 //check for bottom left
                 if (i < 6 && j > 1) {
                     if (this.pieces[i][j] == turn && this.pieces[i + 1][j - 1] == check) {
-                        var k = i + 1; 
+                        var k = i + 1;
                         var q = j - 1;
                         while(k < 8 && q >= 0) {
                             if (this.pieces[k][q] == turn) {
@@ -172,22 +179,22 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.move[k][q].push("DL");
+                                this.board[k][q].push("DL");
                                 k = 8;
                                 q = -1;
                             }
-                            else { 
+                            else {
                                 k++;
                                 q--;
                             }
                         }
                     }
                 }
-                
+
                 //check for top left
                 if (i > 1 && j > 1) {
                     if (this.pieces[i][j] == turn && this.pieces[i - 1][j - 1] == check) {
-                        var k = i - 1; 
+                        var k = i - 1;
                         var q = j - 1;
                         while(k >= 0 && q >= 0) {
                             if (this.pieces[k][q] == turn) {
@@ -196,7 +203,7 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.move[k][q].push("UL");
+                                this.board[k][q].push("UL");
                                 k = -1;
                                 q = -1;
                             }
@@ -210,10 +217,14 @@ class Board {
             }
         }
     }
+
+    //#endregion availableBoard
+
+    //#region flipBoard
     //we check the direction array from the board object
     //flip the corresponding direction
     flipBoard(row, column) {
-        var direction = this.move[row][column];
+        var direction = this.board[row][column];
         for(var i = 0; i < direction.length; i++) {
             //U flips to the downwards direction
             if(direction[i] == "U") {
@@ -325,6 +336,8 @@ class Board {
             }
         }
     }
+    //#endregion flipBoard
+
     //calculate the white and black pieces
     calScore() {
         this.black = 0;
@@ -335,6 +348,32 @@ class Board {
                 if(this.pieces[i][j] == "1") this.white++;
             }
         }
+    }
+
+    // calculate evaluation score for this board.
+    getEvaluationScore() {
+        var score = 0;
+
+        // this is very inefficient. Please change the availableBoard() function soon.
+        this.availableBoard();
+        // get total playable moves
+        for (var i=0; i<8; i++) {
+            for (var j=0; j<8; j++) {
+                if (ps[i][j]==3) {
+                    // check if it's a corner
+                    if ((i==0 && j==0) || (i==0 && j==8) || (i==8 && j==0) || (i==8 && j==8))
+                    {
+                        score+=10;
+                    }
+                    else if (i==0 || i==8 || j==0 || j==8) {
+                        score+=2;
+                    }
+                    else score++;
+                }
+            }
+        }
+
+        return score;
     }
 }
 
@@ -358,7 +397,7 @@ var pieces = [
 ]
 
 //initalize the starting board
-const initial_state = new Board(pieces);
+const curBoard = new Board(pieces);
 
 
 window.onload = function () {
@@ -371,27 +410,27 @@ window.onload = function () {
 function updatescoreboard() {
     const w_score = document.getElementById("white-score");
     const b_score = document.getElementById("black-score");
-    initial_state.calScore();
-    w_score.textContent = initial_state.white;
-    b_score.textContent = initial_state.black;
+    curBoard.calScore();
+    w_score.textContent = curBoard.white;
+    b_score.textContent = curBoard.black;
 }
 
 function drawpieces() {
     updatescoreboard();
     pieces_layer.innerHTML = "";
-    initial_state.availableBoard();
+    curBoard.availableBoard();
     for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
-            if (initial_state.pieces[i][j] != 0) {
+            if (curBoard.pieces[i][j] != 0) {
                 var piece = document.createElement("div");
                 piece.classList.add("piece");
                 piece.style.width = cellWidth - 4;
                 piece.style.height = cellWidth - 4;
                 piece.style.left = (cellWidth + gap) * j + gap + 2;
                 piece.style.top = (cellWidth + gap) * i + gap + 2;
-                if (initial_state.pieces[i][j] == 1) piece.style.backgroundColor = "white";
-                if (initial_state.pieces[i][j] == 2) piece.style.backgroundColor = "black";
-                if (initial_state.pieces[i][j] == 3) {
+                if (curBoard.pieces[i][j] == 1) piece.style.backgroundColor = "white";
+                if (curBoard.pieces[i][j] == 2) piece.style.backgroundColor = "black";
+                if (curBoard.pieces[i][j] == 3) {
                     piece.style.width = cellWidth - 55;
                     piece.style.height = cellWidth - 55;
                     piece.style.left = (cellWidth + gap) * j + gap + 27.5;
@@ -430,53 +469,64 @@ function clearBoard() {
     }
     for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
-            if (initial_state.pieces[i][j] == 3) initial_state.pieces[i][j] = "0";
+            if (curBoard.pieces[i][j] == 3) curBoard.pieces[i][j] = "0";
         }
     }
-    initial_state.clearMove();
+    curBoard.clearMove();
 }
 
 //clickedBoard gives i and j position that the user clicked on the boar
 //call clearBoard to get rid of the 3s in the board and clean the div
-//and update the new board by calling drawpieces function 
+//and update the new board by calling drawpieces function
 function clickedBoard(row, column) {
-    if (initial_state.pieces[row][column] == 3) {
+    if (curBoard.pieces[row][column] == 3) {
         if (turn == 1) {
-            initial_state.pieces[row][column] = "1";
-            initial_state.flipBoard(row, column);
+            curBoard.pieces[row][column] = "1";
+            curBoard.flipBoard(row, column);
             turn = 2;
         }
+        // default the bot to play at turn 2 -- Bot plays Black
         else if (turn == 2) {
-            initial_state.pieces[row][column] = "2";
-            initial_state.flipBoard(row, column);
+            curBoard.pieces[row][column] = "2";
+            curBoard.flipBoard(row, column);
             turn = 1;
         }
     }
-    
     clearBoard();
     drawpieces();
 }
 //****************************-End Rendering-************************************* */
-//****************************-Minmax algorithmn Starts Here-************************************* */
+//****************************-Minimax algorithm Starts Here-************************************* */
 
-/*function minimax (s, is_max, depth){
+function minimax (s, is_max, depth){
     var state = new Board(s);
-    //base case 50 rounds  just a random estimate of how many rounds
-    if(depth == 50) {
-        state.calScore();
-        return state.black;
+    // if reaches the maximum depth, returns value
+    if(depth == 6) {
+        return state.getEvaluationScore();
     }
-    //we are at the maximizer 
+    // If we are at the maximizer
     if(is_max == true) {
-        var highest = -100000;
+        var highest = MIN_VALUE;
         //for each availe state
-        for(var i = 0; i < 8; i++) {
-            for(var j = 0; j < 8; j++) {
-                //we found an available move
-                if(state.pieces[i][j] == 3) {
-                    
-                }
-            }
+        for(board in nextPossibleBoards(s)) {
+            var cur = minimax(s, true, depth+1);
+            highest = cur > highest ? cur : highest;
         }
     }
-}*/
+    // If we are at the minimizer
+    else {
+        var lowest = MAX_VALUE;
+        //for each availe state
+        for(board in nextPossibleBoards(s)) {
+            var cur = minimax(s, false, depth+1);
+            lowest = cur < lowest ? cur : lowest;
+        }
+    }
+
+
+}
+
+// TODO:
+// Return the array of all possible next board from a starting board
+function nextPossibleBoards(s) {
+}
