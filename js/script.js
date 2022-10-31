@@ -20,6 +20,8 @@
 //availableMove() update the board with availeble moves in the board and turn that move spot into value 3 
 //and push the direciton move string into the move value;
 
+const { min } = require("moment");
+
 
 
 //****************************-Object Class Starts Here-************************************* */
@@ -41,6 +43,31 @@ class Board {
         this.white = 0;
         this.black = 0;
         this.score = 0; // mobility + corner + edge
+    }
+    constructor() {
+        this.white = 0;
+        this.black = 0;
+        this.score = 0; // mobility + corner + edge
+        this.board = [
+            [[], [], [], [], [], [], [], []],
+            [[], [], [], [], [], [], [], []],
+            [[], [], [], [], [], [], [], []],
+            [[], [], [], [], [], [], [], []],
+            [[], [], [], [], [], [], [], []],
+            [[], [], [], [], [], [], [], []],
+            [[], [], [], [], [], [], [], []],
+            [[], [], [], [], [], [], [], []],
+        ]
+        this.pieces = [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 2, 1, 0, 0, 0],
+            [0, 0, 0, 1, 2, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0]
+        ]
     }
     clearMove() {
         this.board = [
@@ -495,11 +522,30 @@ function clickedBoard(row, column) {
     clearBoard();
     drawpieces();
 }
+
+// returns the board after a move at [row,column]
+function boardAfterClicked(board, row, column, curTurn) {
+    var newBoard = board;
+    if (curTurn == 1) {
+        newBoard.pieces[row][column] = "1";
+        newBoard.flipBoard(row, column);
+        curTurn = 2;
+    }
+    else if (curTurn == 2) {
+        newBoard.pieces[row][column] = "2";
+        newBoard.flipBoard(row, column);
+        curTurn = 1;
+    }
+    return newBoard;
+}
 //****************************-End Rendering-************************************* */
 //****************************-Minimax algorithm Starts Here-************************************* */
 
+
+// Pay attention to the case when a user skips
 function minimax (s, is_max, depth){
-    var state = new Board(s);
+
+    var curTurn = is_max ? 2 : 1;
     // if reaches the maximum depth, returns value
     if(depth == 6) {
         return state.getEvaluationScore();
@@ -507,19 +553,37 @@ function minimax (s, is_max, depth){
     // If we are at the maximizer
     if(is_max == true) {
         var highest = MIN_VALUE;
-        //for each availe state
-        for(board in nextPossibleBoards(s)) {
-            var cur = minimax(s, true, depth+1);
+
+        var nextBoards = nextPossibleBoards(s, curTurn);
+        // if there's no next move,
+        if (nextBoards.length()==0) {
+            var cur = minimax(s, false, depth+1);
             highest = cur > highest ? cur : highest;
+        }
+        else {
+            // evaluate all possible next moves
+            for(board in nextBoards) {
+                var cur = minimax(board, false, depth+1);
+                highest = cur > highest ? cur : highest;
+            }
         }
     }
     // If we are at the minimizer
     else {
         var lowest = MAX_VALUE;
-        //for each availe state
-        for(board in nextPossibleBoards(s)) {
-            var cur = minimax(s, false, depth+1);
+
+        var nextBoards = nextPossibleBoards(s, curTurn);
+        // if there's no next move,
+        if (nextBoards.length()==0) {
+            var cur = minimax(s, true, depth+1);
             lowest = cur < lowest ? cur : lowest;
+        }
+        else {
+            // evaluate all possible next moves
+            for(board in nextBoards) {
+                var cur = minimax(board, true, depth+1);
+                lowest = cur < lowest ? cur : lowest;
+            }
         }
     }
 
@@ -528,5 +592,18 @@ function minimax (s, is_max, depth){
 
 // TODO:
 // Return the array of all possible next board from a starting board
-function nextPossibleBoards(s) {
+// if at maximizer, curTurn = 2. If at minimizer, curTurn = 1.
+function nextPossibleBoards(s, curTurn) {
+    var listBoard = new Array<Board>(0);
+    var possibleMoves = s.pieces;
+    // for each available move in s.pieces
+    for (var i=0; i<8; i++) {
+        for (var j=0; j<8; j++) {
+            if (possibleMoves[i][j] == 3) {
+                // generate a new board with this square clicked
+                var nextBoard = boardAfterClicked(s, i, j, curTurn);
+                listBoard.appendChild(nextBoard);
+            }
+        }
+    }
 }
