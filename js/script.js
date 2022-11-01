@@ -538,11 +538,11 @@ function clickedBoard(row, column) {
 
             // Now, the bot's turn
             // here, call the minimax function and get the next move.
-            var map = new Map();
-            var moves = new Array<Position>(0);
-            var bestScore = minimax(curBoard, true, 0, moves, map);
-            var nextPos = moves[moves.length()-1];
-            curBoard.flipBoard(nextPos.row(), nextPos.col());
+            // var map = new Map();
+            // var moves = new Array<Position>(0);
+            // var bestScore = minimax(curBoard, true, 0, moves, map);
+            // var nextPos = moves[moves.length()-1];
+            // curBoard.flipBoard(nextPos.row(), nextPos.col());
 
 
             turn = 2;
