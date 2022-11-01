@@ -30,7 +30,7 @@ class Board {
 
         // why do we need both?????
         this.pieces = ps;
-        this.board = [
+        this.move = [
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
@@ -49,7 +49,7 @@ class Board {
         this.white = 0;
         this.black = 0;
         this.score = 0; // mobility + corner + edge
-        this.board = [
+        this.move = [
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
@@ -75,7 +75,7 @@ class Board {
        //this.played = 0;
     }
     clearMove() {
-        this.board = [
+        this.move = [
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
@@ -102,7 +102,7 @@ class Board {
                                 k = -1;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
                                 this.pieces[k][j] = 3;
-                                this.board[k][j].push("U");
+                                this.move[k][j].push("U");
                                 //we have to some how store this
                                 k = -1;
                             }
@@ -117,7 +117,7 @@ class Board {
                             if (this.pieces[k][j] == turn) k = 8;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
                                 this.pieces[k][j] = 3;
-                                this.board[k][j].push("D");
+                                this.move[k][j].push("D");
                                 k = 8;
                             }
                         }
@@ -130,7 +130,7 @@ class Board {
                             if (this.pieces[i][k] == turn) k = -1;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
-                                this.board[i][k].push("L");
+                                this.move[i][k].push("L");
                                 k = -1;
                             }
                         }
@@ -144,7 +144,7 @@ class Board {
                             if (this.pieces[i][k] == turn) k = 8;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
-                                this.board[i][k].push("R");
+                                this.move[i][k].push("R");
                                 k = 8;
                             }
                         }
@@ -163,7 +163,7 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.board[k][q].push("UR");
+                                this.move[k][q].push("UR");
                                 k = -1;
                                 q = 8;
                             }
@@ -187,7 +187,7 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.board[k][q].push("DR");
+                                this.move[k][q].push("DR");
                                 k = 8;
                                 q = 8;
                             }
@@ -211,7 +211,7 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.board[k][q].push("DL");
+                                this.move[k][q].push("DL");
                                 k = 8;
                                 q = -1;
                             }
@@ -235,7 +235,7 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.board[k][q].push("UL");
+                                this.move[k][q].push("UL");
                                 k = -1;
                                 q = -1;
                             }
@@ -256,7 +256,7 @@ class Board {
     //we check the direction array from the board object
     //flip the corresponding direction
     flipBoard(row, column) {
-        var direction = this.board[row][column];
+        var direction = this.move[row][column];
         for(var i = 0; i < direction.length; i++) {
             //U flips to the downwards direction
             if(direction[i] == "U") {
