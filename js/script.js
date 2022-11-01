@@ -20,7 +20,7 @@
 //availableMove() update the board with availeble moves in the board and turn that move spot into value 3 
 //and push the direciton move string into the move value;
 
-const { min } = require("moment");
+
 
 
 
@@ -41,25 +41,7 @@ class Position{
     }
 }
 class Board {
-    constructor (ps) {
 
-        // why do we need both?????
-        this.pieces = ps;
-        this.move = [
-            [[], [], [], [], [], [], [], []],
-            [[], [], [], [], [], [], [], []],
-            [[], [], [], [], [], [], [], []],
-            [[], [], [], [], [], [], [], []],
-            [[], [], [], [], [], [], [], []],
-            [[], [], [], [], [], [], [], []],
-            [[], [], [], [], [], [], [], []],
-            [[], [], [], [], [], [], [], []],
-        ]
-        this.white = 0;
-        this.black = 0;
-        this.score = 0; // mobility + corner + edge
-        //this.played = 0;
-    }
     constructor() {
         this.white = 0;
         this.black = 0;
@@ -645,8 +627,7 @@ function minimax(s, is_max, depth, moves, map){
         moves.appendChild(pos);
     }
 
-
-// }
+}
 
 // TODO:
 // Return the array of all possible next board from a starting board
