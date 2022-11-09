@@ -45,6 +45,7 @@ class Board {
     constructor() {
         this.white = 0;
         this.black = 0;
+        this.skip = false;
         this.score = 0; // mobility + corner + edge
         this.move = [
             [[], [], [], [], [], [], [], []],
@@ -60,8 +61,8 @@ class Board {
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 2, 1, 0, 0, 0],
             [0, 0, 0, 1, 2, 0, 0, 0],
+            [0, 0, 0, 2, 1, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0]
@@ -69,7 +70,6 @@ class Board {
         // number of moves played - used to determined which phase of the
         // game we are at to use the correct evaluation function
         // for our MiniMax Algorithm.
-       //this.played = 0;
     }
     clearMove() {
         this.move = [
@@ -85,7 +85,11 @@ class Board {
     }
     //#region availableBoard
     availableBoard() {
+        //check is the int that marks the opponent's piece
+        //if ur turn is white check = 0 indicating black
+        //else check = 1 indication white
         var check = 0;
+        this.skip = true;
         if (turn == 2) check = 1;
         else check = 2;
         for (var i = 0; i < 8; i++) {
@@ -99,6 +103,7 @@ class Board {
                                 k = -1;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
                                 this.pieces[k][j] = 3;
+                                this.skip = false;
                                 this.move[k][j].push("U");
                                 //we have to some how store this
                                 k = -1;
@@ -114,6 +119,7 @@ class Board {
                             if (this.pieces[k][j] == turn) k = 8;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
                                 this.pieces[k][j] = 3;
+                                this.skip = false;
                                 this.move[k][j].push("D");
                                 k = 8;
                             }
@@ -127,6 +133,7 @@ class Board {
                             if (this.pieces[i][k] == turn) k = -1;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
+                                this.skip = false;
                                 this.move[i][k].push("L");
                                 k = -1;
                             }
@@ -141,6 +148,7 @@ class Board {
                             if (this.pieces[i][k] == turn) k = 8;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
+                                this.skip = false;
                                 this.move[i][k].push("R");
                                 k = 8;
                             }
@@ -160,6 +168,7 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
+                                this.skip = false;
                                 this.move[k][q].push("UR");
                                 k = -1;
                                 q = 8;
@@ -184,6 +193,7 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
+                                this.skip = false;
                                 this.move[k][q].push("DR");
                                 k = 8;
                                 q = 8;
@@ -208,6 +218,7 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
+                                this.skip = false;
                                 this.move[k][q].push("DL");
                                 k = 8;
                                 q = -1;
@@ -232,6 +243,7 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
+                                this.skip = false;
                                 this.move[k][q].push("UL");
                                 k = -1;
                                 q = -1;
@@ -417,20 +429,10 @@ var cellWidth = 60;
 var pieces_layer;
 //turn 1 = white turns
 //turn 2 = black turns
-var turn = 1;
-var pieces = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 2, 1, 0, 0, 0],
-    [0, 0, 0, 1, 2, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0]
-]
+var turn = 2;
 
 //initalize the starting board
-const curBoard = new Board(pieces);
+const curBoard = new Board();
 
 
 window.onload = function () {
@@ -439,6 +441,13 @@ window.onload = function () {
     drawpieces();
 }
 
+let skip_bot = document.getElementById("skip_btn");
+skip_bot.onclick = function () {
+    if(turn == 1) turn = 2;
+    else turn = 1;
+    skip_bot.style.display = "none";
+    drawpieces();
+}
 
 function updatescoreboard() {
     const w_score = document.getElementById("white-score");
@@ -452,29 +461,41 @@ function drawpieces() {
     updatescoreboard();
     pieces_layer.innerHTML = "";
     curBoard.availableBoard();
-    for (var i = 0; i < 8; i++) {
-        for (var j = 0; j < 8; j++) {
-            if (curBoard.pieces[i][j] != 0) {
-                var piece = document.createElement("div");
-                piece.classList.add("piece");
-                piece.style.width = cellWidth - 4;
-                piece.style.height = cellWidth - 4;
-                piece.style.left = (cellWidth + gap) * j + gap + 2;
-                piece.style.top = (cellWidth + gap) * i + gap + 2;
-                if (curBoard.pieces[i][j] == 1) piece.style.backgroundColor = "white";
-                if (curBoard.pieces[i][j] == 2) piece.style.backgroundColor = "black";
-                if (curBoard.pieces[i][j] == 3) {
-                    piece.style.width = cellWidth - 55;
-                    piece.style.height = cellWidth - 55;
-                    piece.style.left = (cellWidth + gap) * j + gap + 27.5;
-                    piece.style.top = (cellWidth + gap) * i + gap + 27.5;
-                    piece.style.backgroundColor = "yellow";
-                }
-                document.getElementById("board").appendChild(piece);
-            }
-
+    if(curBoard.skip == true){
+        if(turn == 2) {
+            skip_bot.style.display = "flex";
+        }
+        else {
+            turn = 2;
+            curBoard.availableBoard();
         }
     }
+    //else{
+        for (var i = 0; i < 8; i++) {
+            for (var j = 0; j < 8; j++) {
+                if (curBoard.pieces[i][j] != 0) {
+                    var piece = document.createElement("div");
+                    piece.classList.add("piece");
+                    piece.style.width = cellWidth - 4;
+                    piece.style.height = cellWidth - 4;
+                    piece.style.left = (cellWidth + gap) * j + gap + 2;
+                    piece.style.top = (cellWidth + gap) * i + gap + 2;
+                    if (curBoard.pieces[i][j] == 1) piece.style.backgroundColor = "white";
+                    if (curBoard.pieces[i][j] == 2) piece.style.backgroundColor = "black";
+                    if (curBoard.pieces[i][j] == 3) {
+                        piece.style.width = cellWidth - 55;
+                        piece.style.height = cellWidth - 55;
+                        piece.style.left = (cellWidth + gap) * j + gap + 27.5;
+                        piece.style.top = (cellWidth + gap) * i + gap + 27.5;
+                        piece.style.backgroundColor = "yellow";
+                    }
+                    document.getElementById("board").appendChild(piece);
+                }
+    
+            }
+        }
+
+    //}
 }
 
 //createing a board here
