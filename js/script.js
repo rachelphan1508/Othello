@@ -552,20 +552,26 @@ function clearBoard() {
 //call clearBoard to get rid of the 3s in the board and clean the div
 //and update the new board by calling drawpieces function
 function clickedBoard(row, column) {
-    //curBoard.played++;
-    if (curBoard.pieces[row][column] == 3) {
-        if (turn == 1) {
-            curBoard.pieces[row][column] = 1;
-            curBoard.flipBoard(row, column);
+    // default the bot to play at turn 1 -- Bot plays White
+    console.log("cur turn: " + turn);
+    curBoard.availableBoard();
+    if (curBoard.pieces[row][column] == 3 && turn == 1) {
+        curBoard.pieces[row][column] = 1;
+        curBoard.flipBoard(row, column);
+        turn = 2;
+        updatescoreboard();
+    }
+    else if (curBoard.pieces[row][column] == 3 && turn == 2) {
+        curBoard.pieces[row][column] = 2;
+        curBoard.flipBoard(row, column);
 
-            turn = 2;
-
-        }
-        // default the bot to play at turn 2 -- Bot plays Black
-        else if (turn == 2) {
-            curBoard.pieces[row][column] = "2";
-            curBoard.flipBoard(row, column);
-            turn = 1;
+        updatescoreboard();
+        turn = 1;
+        setTimeout(function(){
+            minimaxdepth2();
+            clearBoard();
+            drawpieces();
+        },500);
 
     }
     clearBoard();
