@@ -569,6 +569,8 @@ function clickedBoard(row, column) {
         turn = 1;
         setTimeout(function(){
             minimaxdepth2();
+            clearBoard();
+            drawpieces();
         },500);
 
     }
@@ -612,6 +614,7 @@ function playGame() {
 // if at maximizer, curTurn = 2. If at minimizer, curTurn = 1.
  function possibleMoves(s, curTurn) {
     let boardCopy = copyBoard(s);
+    console.log("sss");
     var moves = [];
     // for each available move in s.pieces
     for (var i=0; i<8; i++) {
@@ -632,7 +635,7 @@ function playGame() {
 // Pay attention to the case when a user skips
  function minimax(s, is_max, depth, moves, map){
 
-    var curTurn = is_max ? 1 : 2;
+    //var curTurn = is_max ? 1 : 2;
     var nextRow;
     var nextCol;
 
@@ -699,8 +702,9 @@ function playGame() {
     }
 }
 
+// copy the pieces
 function copyBoard(s) {
-    var newBoard = new Array(8);
+    var newBoard = s;
     for (var i = 0; i < 8; i++) {
         newBoard[i] = new Array(8);
         for (var j = 0; j < 8; j++) {
