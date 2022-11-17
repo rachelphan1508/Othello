@@ -501,7 +501,7 @@ function drawpieces() {
                     if (curBoard.pieces[i][j] == 1) piece.style.backgroundColor = "white";
                     if (curBoard.pieces[i][j] == 2) piece.style.backgroundColor = "black";
                     if (curBoard.pieces[i][j] == 3) {
-                        //console.log("was at i.");
+                        console.log("was at i.");
                         piece.style.width = cellWidth - 55;
                         piece.style.height = cellWidth - 55;
                         piece.style.left = (cellWidth + gap) * j + gap + 27.5;
@@ -799,6 +799,7 @@ function minimaxdepth2(){
             // move to corner if available
             curBoard.pieces[i][j] = 1;
             curBoard.flipBoard(moves[p].i, moves[p].j);
+            
             curBoard.availableBoard();
             return;
     }
