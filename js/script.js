@@ -533,24 +533,10 @@ function clickedBoard(row, column) {
     //curBoard.played++;
     if (curBoard.pieces[row][column] == 3) {
         if (turn == 1) {
-            curBoard.pieces[row][column] = "1";
+            curBoard.pieces[row][column] = 1;
             curBoard.flipBoard(row, column);
 
             turn = 2;
-            // Now, the bot's turn
-            // here, call the minimax function and get the next move.
-            // var map = new Map();
-            // var moves = new Array();
-            // var b = curBoard;
-            // var bestScore = minimax(b, true, 0, moves, map);
-            // console.log(moves);
-            // console.log(map);
-            // var nextPos = moves.at(moves.length-1);
-            // console.log("next X: " + nextPos.row());
-            // console.log("next Y: " + nextPos.col());
-            // clickedBoard(nextPos.row(), nextPos.col());
-            // moves = new Array();
-            // map = new Map();
 
         }
         // default the bot to play at turn 2 -- Bot plays Black
