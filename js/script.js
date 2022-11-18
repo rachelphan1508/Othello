@@ -1,4 +1,4 @@
-
+// h
 //class Board{
 // public:
 //          vector<vector<int> ps;
@@ -18,6 +18,10 @@
 //clearMove() empty all of the moves in the 2d board;
 //availableMove() update the board with availeble moves in the board and turn that move spot into value 3
 //and push the direciton move string into the move value;
+
+/// Higher score means good for WHITE
+/// 
+
 
 //import {minimax, boardAfterClicked, nextPossibleBoards} from "./minimax.js";
 
@@ -88,8 +92,8 @@ class Board {
             //U flips to the downwards direction
             if(direction[i] == "U") {
                 for(var j = row+1; j < 8; j++) {
-                    if(board.pieces[j][column] != turn){
-                        board.pieces[j][column] = turn;
+                    if(this.pieces[j][column] != turn){
+                        this.pieces[j][column] = turn;
                     }
                     else {
                         j = 8;
@@ -382,6 +386,15 @@ class Board {
         }
     }
 
+    printPieces() {
+        console.log("Printing board. \n");
+        for (var i = 0; i < 8; i++) {
+            for (var j = 0; j < 8; j++) {
+                console.log(this.pieces[i][j] + " ");
+            }
+        }
+    }
+
     //calculate the white and black pieces
     calScore() {
         this.black = 0;
@@ -554,39 +567,34 @@ function clearBoard() {
 function clickedBoard(row, column) {
     // default the bot to play at turn 1 -- Bot plays White
     console.log("cur turn: " + turn);
-    curBoard.availableBoard();
-    if (curBoard.pieces[row][column] == 3 && turn == 1) {
-        curBoard.pieces[row][column] = 1;
-        curBoard.flipBoard(row, column);
-        turn = 2;
-        updatescoreboard();
-    }
-    else if (curBoard.pieces[row][column] == 3 && turn == 2) {
-        curBoard.pieces[row][column] = 2;
-        curBoard.flipBoard(row, column);
+    //curBoard.availableBoard();
+    if (curBoard.pieces[row][column] == 3) {
+        if (turn == 1) {
+            curBoard.pieces[row][column] = 1;
+            curBoard.flipBoard(row, column);
+            turn = 2;
+            updatescoreboard();
+        }
+        else if ( turn == 2) {
+            curBoard.pieces[row][column] = 2;
+            curBoard.flipBoard(row, column);
+            turn = 1;
+            updatescoreboard();
 
-        updatescoreboard();
-        turn = 1;
-        setTimeout(function(){
-            minimaxdepth2();
-            clearBoard();
-            drawpieces();
-        },500);
+            // comment this if you don't the bot
+            // setTimeout(function(){
+            //     var s = curBoard;
+            //     minimax(s, true, 0, 1);
+            //     //minimaxdepth2();
+            //     clearBoard();
+            //     drawpieces();
+            // },500);
 
-    }
-    clearBoard();
-    drawpieces();
-}
-
-// TODO: 
-// since clickedBoard is triggered by a click on the screen, the computer won't
-// be able to play there.
-function playGame() {
-    if (turn==2) {
-
+        }
+        clearBoard();
+        drawpieces();
     }
 }
-
 
 //****************************-End Rendering-************************************* */
 
@@ -613,18 +621,21 @@ function playGame() {
 // Return the array of all possible next board from a starting board
 // if at maximizer, curTurn = 2. If at minimizer, curTurn = 1.
  function possibleMoves(s, curTurn) {
+
     let boardCopy = copyBoard(s);
     console.log("sss");
     var moves = [];
     // for each available move in s.pieces
     for (var i=0; i<8; i++) {
         for (var j=0; j<8; j++) {
-            if (boardCopy[i][j] == 3) {
+            //console.log(boardCopy[i][j] + " ");
+            if (boardCopy[i][j] === 3) {
                 console.log("here:"+ i + " " + j);
                 // TODO: might add evaluation score here
                 moves.push({i: i, j: j, opponentScore: -1, avoid: false});
             }
         }
+        console.log("\n");
     }
     return moves;
 }
@@ -633,7 +644,7 @@ function playGame() {
 
 
 // Pay attention to the case when a user skips
- function minimax(s, is_max, depth, moves, map){
+ function minimax(s, is_max, depth, curTurn){
 
     //var curTurn = is_max ? 1 : 2;
     var nextRow;
@@ -644,35 +655,32 @@ function playGame() {
 
     console.log("possible next boards: " + moves.length);
 
-    //console.log("We are at turn " + curTurn);
-    // if reaches the maximum depth, returns value
-    if(depth == 4) {
+    if(depth == 2) {
         console.log("score " + s.getEvaluationScore());
         return s.getEvaluationScore();
     }
     // If we are at the maximizer
     if(is_max == true) {
+        var evalScore=0;
         console.log("was in maximizer at depth " + depth);
         var highest = -100000;
+
         // if there's no next move,
         if (moves.length==0) {
-            var cur = minimax(s, false, depth+1, moves, map);
+            var cur = minimax(s, false, depth+1, 2);
             if (cur>highest) {
                 highest = cur;
-                nextRow = map.get(s).at(0);
-                nextCol = map.get(s).at(1);
-
-                console.log("next " + nextRow + " " + nextCol);
+                //console.log("next " + nextRow + " " + nextCol);
             }
         }
         else {
             // evaluate all possible next moves
             for (var p = 0; p < moves.length; p++) {
                 model = copyBoard(s.pieces);
-                // make the fake move
-                makeFakeMove(model, curTurn, moves[p].i, moves[p].j);
-
-                // calculate score for this move.
+                if (checkBadMove(agentNextMoves[n].i, agentNextMoves[n].j))
+                    evalScore = evalScore - 10;
+                if (checkWantedMove(agentNextMoves[n].i, agentNextMoves[n].j))
+                    evalScore = evalScore + 200;
 
             }
         }
@@ -683,7 +691,7 @@ function playGame() {
         var lowest = 100000;
         // if there's no next move,
         if (nextBoards.length==0) {
-            var cur = minimax(s, true, depth+1, moves, map);
+            var cur = minimax(s, true, depth+1, curTurn);
             if (cur < lowest) {
                 lowest = cur;
                 nextRow = map.get(s).at(0);
@@ -693,7 +701,7 @@ function playGame() {
         else {
             // evaluate all possible next moves
             nextBoards.forEach((board) => {
-                var cur = minimax(board, true, depth+1, moves, map);
+                var cur = minimax(board, true, depth+1, 1);
 
             })
         }
@@ -704,12 +712,11 @@ function playGame() {
 
 // copy the pieces
 function copyBoard(s) {
-    var newBoard = s;
+    var newBoard = new Array(8);
     for (var i = 0; i < 8; i++) {
-        newBoard[i] = new Array(8);
         for (var j = 0; j < 8; j++) {
-            newBoard[i][j] = s[i][j];
-            //console.log(s[i][j] + " ");
+            newBoard[i][j] = s.pieces[i][j];
+            console.log(s.pieces[i][j] + " ");
         }
     }
     return newBoard;
@@ -747,81 +754,84 @@ function checkWantedMove(i, j) {
     return false;
 }
 
-function minimaxdepth2(){
-    var moves = possibleMoves(curBoard, turn);
-    var enemy = -1, nextPieces, evalScore;
-    turn = 1;
-    for (var p = 0; p < moves.length; p++) {
-        var myBoard = new Board();
-        nextPieces = copyBoard(curBoard.pieces);
-        console.log("reach inside");
-        myBoard.copyToPieces(nextPieces);
-        myBoard.availableBoard();
-        myBoard.pieces[i][j] = 1;
-        myBoard.flipBoard(moves[p].i, moves[p].j);
+// function minimaxdepth2(){
+//     // print
+//     //curBoard.printPieces();
+//     var moves = possibleMoves(curBoard, turn);
+//     var enemy = -1, nextPieces, evalScore;
+//     turn = 1;
+//     for (var p = 0; p < moves.length; p++) {
+//         var myBoard = new Board();
+//         // print
+//         //curBoard.printPieces();
+//         nextPieces = copyBoard(curBoard);
+//         console.log("reach inside");
+//         myBoard.copyToPieces(nextPieces);
+//         //myBoard.availableBoard();
+//         //myBoard.pieces[i][j] = 1;
+//         //myBoard.flipBoard(moves[p].i, moves[p].j);
 
-        // judge player's moves -- at
-        playerMoves = possibleMoves(myBoard, 1);
-        var playerPieces;
-        for (var k = 0; k < playerMoves.length; k++) {
-            var playerBoard = new Board();
-            playerPieces = copyBoard(myBoard.pieces);
-            playerBoard.availableBoard();
-            playerBoard.pieces[i][j] = 2;
-            playerBoard.flipBoard(moves[k].i, moves[k].j);
+//         // judge player's moves -- at
+//         playerMoves = possibleMoves(myBoard, 1);
+//         var playerPieces;
+//         for (var k = 0; k < playerMoves.length; k++) {
+//             var playerBoard = new Board();
+//             playerPieces = copyBoard(myBoard);
+//             playerBoard.availableBoard();
+//             playerBoard.pieces[i][j] = 2;
+//             playerBoard.flipBoard(moves[k].i, moves[k].j);
 
-            // bot's number of moves after
-            agentNextMoves = possibleMoves(playerBoard, 2);
-            minScoreForPlayer = 10000;
+//             // bot's number of moves after
+//             agentNextMoves = possibleMoves(playerBoard, 2);
+//             minScoreForPlayer = 10000;
 
-            // mobility score. TODO: add more (..)
-            evalScore = agentNextMoves.length;
-            for(var n = 0; n < agentNextMoves.length; n++) {
-                if (checkBadMove(agentNextMoves[n].i, agentNextMoves[n].j))
-                    evalScore = evalScore - 10;
-                if (checkWantedMove(agentNextMoves[n].i, agentNextMoves[n].j))
-                    evalScore = evalScore + 200;
-            }
+//             // mobility score. TODO: add more (..)
+//             evalScore = agentNextMoves.length;
+//             for(var n = 0; n < agentNextMoves.length; n++) {
+//                 if (checkBadMove(agentNextMoves[n].i, agentNextMoves[n].j))
+//                     evalScore = evalScore - 10;
+//                 if (checkWantedMove(agentNextMoves[n].i, agentNextMoves[n].j))
+//                     evalScore = evalScore + 200;
+//             }
 
-            // get minimium for user
-            if (minScoreForPlayer > evalScore)
-                minScoreForPlayer = evalScore;
+//             // get minimium for user
+//             if (minScoreForPlayer > evalScore)
+//                 minScoreForPlayer = evalScore;
 
-            // if user can move to corner, avoid
-            if (checkWantedMove(agentNextMoves[k].i, agentNextMoves[k].j))
-                moves[p].avoid = true;
-        }
-        moves[p].opponentScore = minScoreForPlayer;
+//             // if user can move to corner, avoid
+//             if (checkWantedMove(agentNextMoves[k].i, agentNextMoves[k].j))
+//                 moves[p].avoid = true;
+//         }
+//         moves[p].opponentScore = minScoreForPlayer;
 
-    }
+//     }
 
-    // sort
-    moves.sort(moveSort);
+//     // sort
+//     moves.sort(moveSort);
 
-    for (var p = 0; p <moves.length; p++) {
-        if (checkWantedMove(moves[p].i, moves[p].j))
-            // move to corner if available
-            curBoard.pieces[i][j] = 1;
-            curBoard.flipBoard(moves[p].i, moves[p].j);
-            
-            curBoard.availableBoard();
-            return;
-    }
+//     for (var p = 0; p <moves.length; p++) {
+//         if (checkWantedMove(moves[p].i, moves[p].j))
+//             // move to corner if available
+//             curBoard.pieces[i][j] = 1;
+//             //curBoard.flipBoard(moves[p].i, moves[p].j);
+//             //curBoard.availableBoard();
+//             return;
+//     }
 
-    // look until we see a not-disaster move
-    var index;
-    for (index = 0; index <moves.length-1; index++) {
-        if (!moves[index].avoid && !checkBadMove(moves[index].i, moves[index].j))
-            break;
-    }
+//     // look until we see a not-disaster move
+//     var index;
+//     for (index = 0; index <moves.length-1; index++) {
+//         if (!moves[index].avoid && !checkBadMove(moves[index].i, moves[index].j))
+//             break;
+//     }
 
-    var nextRow = moves[index].i;
-    var nextCol = moves[index].j;
-    curBoard.pieces[nextRow][nextCol] = 1;
-    curBoard.flipBoard(nextRow, nextCol);
-    curBoard.availableBoard();
-    return;
-}
+//     // var nextRow = moves[index].i;
+//     // var nextCol = moves[index].j;
+//     // curBoard.pieces[nextRow][nextCol] = 1;
+//     // curBoard.flipBoard(nextRow, nextCol);
+//     // curBoard.availableBoard();
+//     return;
+// }
 
 // better for agent means lower score for player
 function moveSort(move1, move2) {
