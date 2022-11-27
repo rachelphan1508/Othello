@@ -31,7 +31,6 @@ class Board {
     constructor() {
         this.white = 0;
         this.black = 0;
-        this.skip = false;
         this.score = 0; // mobility + corner + edge
         //move is a string vector that takes U,D,R,L,UR,UL,DL,DR as direction in the corresponded 2d board
         this.move = [
@@ -48,8 +47,8 @@ class Board {
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 2, 0, 0, 0],
             [0, 0, 0, 2, 1, 0, 0, 0],
+            [0, 0, 0, 1, 2, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0]
@@ -57,22 +56,7 @@ class Board {
         // number of moves played - used to determined which phase of the
         // game we are at to use the correct evaluation function
         // for our MiniMax Algorithm.
-
-        // number of corners taken by user
-        this.cornerTaken = 0;
-        this.pieces = [
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 2, 0, 0, 0],
-            [0, 0, 0, 2, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-
-        // at initialization, Black plays first. Black's turn is 2.
-        this.curTurn=2;
+       //this.played = 0;
     }
     clearMove() {
         this.move = [
@@ -201,11 +185,7 @@ class Board {
     }
     //#region availableBoard
     availableBoard() {
-        //check is the int that marks the opponent's piece
-        //if ur turn is white check = 0 indicating black
-        //else check = 1 indication white
         var check = 0;
-        this.skip = true;
         if (turn == 2) check = 1;
         else check = 2;
         for (var i = 0; i < 8; i++) {
@@ -219,8 +199,6 @@ class Board {
                                 k = -1;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
                                 this.pieces[k][j] = 3;
-                                //console.log("was at increment.");
-                                this.skip = false;
                                 this.move[k][j].push("U");
                                 //we have to some how store this
                                 k = -1;
@@ -236,7 +214,6 @@ class Board {
                             if (this.pieces[k][j] == turn) k = 8;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
                                 this.pieces[k][j] = 3;
-                                this.skip = false;
                                 this.move[k][j].push("D");
                                 k = 8;
                             }
@@ -250,7 +227,6 @@ class Board {
                             if (this.pieces[i][k] == turn) k = -1;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
-                                this.skip = false;
                                 this.move[i][k].push("L");
                                 k = -1;
                             }
@@ -265,7 +241,6 @@ class Board {
                             if (this.pieces[i][k] == turn) k = 8;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
-                                this.skip = false;
                                 this.move[i][k].push("R");
                                 k = 8;
                             }
@@ -285,7 +260,6 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.skip = false;
                                 this.move[k][q].push("UR");
                                 k = -1;
                                 q = 8;
@@ -310,7 +284,6 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.skip = false;
                                 this.move[k][q].push("DR");
                                 k = 8;
                                 q = 8;
@@ -335,7 +308,6 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.skip = false;
                                 this.move[k][q].push("DL");
                                 k = 8;
                                 q = -1;
@@ -360,7 +332,6 @@ class Board {
                             }
                             else if (this.pieces[k][q] == 0 || this.pieces[k][q] == 3) {
                                 this.pieces[k][q] = 3;
-                                this.skip = false;
                                 this.move[k][q].push("UL");
                                 k = -1;
                                 q = -1;
@@ -454,10 +425,20 @@ var cellWidth = 60;
 var pieces_layer;
 //turn 1 = white turns
 //turn 2 = black turns
-var turn = 2;
+var turn = 1;
+var pieces = [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 1, 0, 0, 0],
+    [0, 0, 0, 1, 2, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0]
+]
 
 //initalize the starting board
-const curBoard = new Board();
+const curBoard = new Board(pieces);
 
 
 window.onload = function () {
@@ -492,42 +473,29 @@ function drawpieces() {
     updatescoreboard();
     pieces_layer.innerHTML = "";
     curBoard.availableBoard();
-    if(curBoard.skip == true){
-        if(turn == 2) {
-            skip_bot.style.display = "flex";
-        }
-        else {
-            turn = 2;
-            curBoard.availableBoard();
+    for (var i = 0; i < 8; i++) {
+        for (var j = 0; j < 8; j++) {
+            if (curBoard.pieces[i][j] != 0) {
+                var piece = document.createElement("div");
+                piece.classList.add("piece");
+                piece.style.width = cellWidth - 4;
+                piece.style.height = cellWidth - 4;
+                piece.style.left = (cellWidth + gap) * j + gap + 2;
+                piece.style.top = (cellWidth + gap) * i + gap + 2;
+                if (curBoard.pieces[i][j] == 1) piece.style.backgroundColor = "white";
+                if (curBoard.pieces[i][j] == 2) piece.style.backgroundColor = "black";
+                if (curBoard.pieces[i][j] == 3) {
+                    piece.style.width = cellWidth - 55;
+                    piece.style.height = cellWidth - 55;
+                    piece.style.left = (cellWidth + gap) * j + gap + 27.5;
+                    piece.style.top = (cellWidth + gap) * i + gap + 27.5;
+                    piece.style.backgroundColor = "yellow";
+                }
+                document.getElementById("board").appendChild(piece);
+            }
+
         }
     }
-    //else{
-        for (var i = 0; i < 8; i++) {
-            for (var j = 0; j < 8; j++) {
-                if (curBoard.pieces[i][j] != 0) {
-                    var piece = document.createElement("div");
-                    piece.classList.add("piece");
-                    piece.style.width = cellWidth - 4;
-                    piece.style.height = cellWidth - 4;
-                    piece.style.left = (cellWidth + gap) * j + gap + 2;
-                    piece.style.top = (cellWidth + gap) * i + gap + 2;
-                    if (curBoard.pieces[i][j] == 1) piece.style.backgroundColor = "white";
-                    if (curBoard.pieces[i][j] == 2) piece.style.backgroundColor = "black";
-                    if (curBoard.pieces[i][j] == 3) {
-                        console.log("was at i.");
-                        piece.style.width = cellWidth - 55;
-                        piece.style.height = cellWidth - 55;
-                        piece.style.left = (cellWidth + gap) * j + gap + 27.5;
-                        piece.style.top = (cellWidth + gap) * i + gap + 27.5;
-                        piece.style.backgroundColor = "yellow";
-                    }
-                    document.getElementById("board").appendChild(piece);
-                }
-
-            }
-        }
-
-    //}
 }
 
 //createing a board here
@@ -588,16 +556,40 @@ function clickedBoard(row, column) {
             // },500);
 
         }
-        clearBoard();
-        drawpieces();
     }
+    clearBoard();
+    drawpieces();
+}
 }
 
+// returns the board after a move at [row,column]
+// function boardAfterClicked(board, row, column, curTurn) {
+//     var newBoard = board;
+//     if (curTurn == 1) {
+//         newBoard.pieces[row][column] = "1";
+//         newBoard.flipBoard(row, column);
+//         curTurn = 2;
+//     }
+//     else if (curTurn == 2) {
+//         newBoard.pieces[row][column] = "2";
+//         newBoard.flipBoard(row, column);
+//         curTurn = 1;
+//     }
+//     return newBoard;
+// }
 //****************************-End Rendering-************************************* */
 
+// Pay attention to the case when a user skips
+function minimax(s, is_max, depth, moves, map){
 
 
-//****************************- Minimax Helper Functions -************************************* */
+    // if reaches the maximum depth, returns value
+    if(depth == 6) {
+        return state.getEvaluationScore();
+    }
+    // If we are at the maximizer
+    if(is_max == true) {
+        var highest = MIN_VALUE;
 
 // returns the board after a move at [row,column]
  function boardAfterClicked(board, row, column, curTurn) {
