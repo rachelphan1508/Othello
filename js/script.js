@@ -20,7 +20,7 @@
 //and push the direciton move string into the move value;
 
 /// Higher score means good for WHITE
-/// 
+///
 
 
 //import {minimax, boardAfterClicked, nextPossibleBoards} from "./minimax.js";
@@ -523,7 +523,7 @@ function drawpieces() {
                     }
                     document.getElementById("board").appendChild(piece);
                 }
-    
+
             }
         }
 
@@ -574,9 +574,8 @@ function clickedBoard(row, column) {
             turn = 2;
 
         }
-        // default the bot to play at turn 2 -- Bot plays Black
         else if (turn == 2) {
-            curBoard.pieces[row][column] = "2";
+            curBoard.pieces[row][column] = 2;
             curBoard.flipBoard(row, column);
             turn = 1;
             // comment this if you don't the bot
@@ -589,7 +588,6 @@ function clickedBoard(row, column) {
             // },500);
 
         }
-        
         clearBoard();
         drawpieces();
     }
@@ -628,7 +626,7 @@ function clickedBoard(row, column) {
     for (var i=0; i<8; i++) {
         for (var j=0; j<8; j++) {
             //console.log(boardCopy[i][j] + " ");
-            if (boardCopy[i][j] === 3) {
+            if (boardCopy[i][j] == 3) {
                 console.log("here:"+ i + " " + j);
                 // TODO: might add evaluation score here
                 moves.push({i: i, j: j, opponentScore: -1, avoid: false});
@@ -643,71 +641,71 @@ function clickedBoard(row, column) {
 
 
 // Pay attention to the case when a user skips
- function minimax(s, is_max, depth, curTurn){
+//  function minimax(s, is_max, depth, curTurn){
 
-    //var curTurn = is_max ? 1 : 2;
-    var nextRow;
-    var nextCol;
+//     //var curTurn = is_max ? 1 : 2;
+//     var nextRow;
+//     var nextCol;
 
-    var moves = possibleMoves(s.pieces, curTurn);
-    var model, count;
+//     var moves = possibleMoves(s, curTurn);
+//     var model, count;
 
-    console.log("possible next boards: " + moves.length);
+//     console.log("possible next boards: " + moves.length);
 
-    if(depth == 2) {
-        console.log("score " + s.getEvaluationScore());
-        return s.getEvaluationScore();
-    }
-    // If we are at the maximizer
-    if(is_max == true) {
-        var evalScore=0;
-        console.log("was in maximizer at depth " + depth);
-        var highest = -100000;
+//     if(depth == 2) {
+//         console.log("score " + s.getEvaluationScore());
+//         return s.getEvaluationScore();
+//     }
+//     // If we are at the maximizer
+//     if(is_max == true) {
+//         var evalScore=0;
+//         console.log("was in maximizer at depth " + depth);
+//         var highest = -100000;
 
-        // if there's no next move,
-        if (moves.length==0) {
-            var cur = minimax(s, false, depth+1, 2);
-            if (cur>highest) {
-                highest = cur;
-                //console.log("next " + nextRow + " " + nextCol);
-            }
-        }
-        else {
-            // evaluate all possible next moves
-            for (var p = 0; p < moves.length; p++) {
-                model = copyBoard(s.pieces);
-                if (checkBadMove(agentNextMoves[n].i, agentNextMoves[n].j))
-                    evalScore = evalScore - 10;
-                if (checkWantedMove(agentNextMoves[n].i, agentNextMoves[n].j))
-                    evalScore = evalScore + 200;
+//         // if there's no next move,
+//         if (moves.length==0) {
+//             var cur = minimax(s, false, depth+1, 2);
+//             if (cur>highest) {
+//                 highest = cur;
+//                 //console.log("next " + nextRow + " " + nextCol);
+//             }
+//         }
+//         else {
+//             // evaluate all possible next moves
+//             for (var p = 0; p < moves.length; p++) {
+//                 model = copyBoard(s.pieces);
+//                 if (checkBadMove(agentNextMoves[n].i, agentNextMoves[n].j))
+//                     evalScore = evalScore - 10;
+//                 if (checkWantedMove(agentNextMoves[n].i, agentNextMoves[n].j))
+//                     evalScore = evalScore + 200;
 
-            }
-        }
-    }
-    // If we are at the minimizer
-    else {
-        console.log("was in minimizer at depth " + depth);
-        var lowest = 100000;
-        // if there's no next move,
-        if (nextBoards.length==0) {
-            var cur = minimax(s, true, depth+1, curTurn);
-            if (cur < lowest) {
-                lowest = cur;
-                nextRow = map.get(s).at(0);
-                nextCol = map.get(s).at(1);
-            }
-        }
-        else {
-            // evaluate all possible next moves
-            nextBoards.forEach((board) => {
-                var cur = minimax(board, true, depth+1, 1);
+//             }
+//         }
+//     }
+//     // If we are at the minimizer
+//     else {
+//         console.log("was in minimizer at depth " + depth);
+//         var lowest = 100000;
+//         // if there's no next move,
+//         if (nextBoards.length==0) {
+//             var cur = minimax(s, true, depth+1, curTurn);
+//             if (cur < lowest) {
+//                 lowest = cur;
+//                 nextRow = map.get(s).at(0);
+//                 nextCol = map.get(s).at(1);
+//             }
+//         }
+//         else {
+//             // evaluate all possible next moves
+//             nextBoards.forEach((board) => {
+//                 var cur = minimax(board, true, depth+1, 1);
 
-            })
-        }
-        var pos = new Position(nextRow, nextCol);
-        moves.push(pos);
-    }
-}
+//             })
+//         }
+//         var pos = new Position(nextRow, nextCol);
+//         moves.push(pos);
+//     }
+// }
 
 // copy the pieces
 function copyBoard(s) {
@@ -728,11 +726,6 @@ function copyBoard(s) {
 
 // }
 
-
-// set value and then call flipBoard
-function makeRealMove(i, j) {
-
-}
 
 // function checkHorizontal(board, turn, i, j) {
 //     for ()
