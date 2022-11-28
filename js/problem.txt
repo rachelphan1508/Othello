@@ -1,0 +1,7 @@
+Idea of current Minimax:
+- Get a copy of the current board
+- Get an array of all possible moves from the board
+- For each move, get the board AFTER we make the move (failing with boardAfterClicked actually flipping the real CurBoard)
+- Evaluate each move by mobility, corner
+- Compare score with min/max depends on whether we are at minimizer or maximizer
+- Save the move in nextMoves array. Last move in the array is our next move for the bot.

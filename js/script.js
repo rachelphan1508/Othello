@@ -10,7 +10,7 @@
 //}
 //ps is a 2d vector that stores the value of the board
 //1 is white
-//2 is black
+//-1 is black
 //3 is available move
 //0 is empty
 //move is a string vector that takes U,D,R,L,UR,UL,DL,DR as direction in the corresponded 2d board
@@ -20,26 +20,12 @@
 //availableMove() update the board with availeble moves in the board and turn that move spot into value 3 
 //and push the direciton move string into the move value;
 
-
+// HIGH SCORE = GOOD FOR WHITE
+// Evaluation Score calculation:
 
 
 
 //****************************-Object Class Starts Here-************************************* */
-class Position{
-
-    constructor(a, b) {
-        this.first = a;
-        this.second = b;
-    }
-
-    row() {
-        return this.first;
-    }
-
-    col() {
-        return this.second;
-    }
-}
 class Board {
 
     constructor() {
@@ -70,6 +56,7 @@ class Board {
         // number of moves played - used to determined which phase of the
         // game we are at to use the correct evaluation function
         // for our MiniMax Algorithm.
+        this.turn = 2;
     }
     clearMove() {
         this.move = [
@@ -83,23 +70,22 @@ class Board {
             [[], [], [], [], [], [], [], []],
         ]
     }
-    //#region availableBoard
     availableBoard() {
         //check is the int that marks the opponent's piece
         //if ur turn is white check = 0 indicating black
         //else check = 1 indication white
         var check = 0;
         this.skip = true;
-        if (turn == 2) check = 1;
+        if (this.turn == 2) check = 1;
         else check = 2;
         for (var i = 0; i < 8; i++) {
             for (var j = 0; j < 8; j++) {
                 //check for UL U UR L R DL D DR directions
                 //check for U
                 if (i != 0 && i != 1) {
-                    if (this.pieces[i][j] == turn && this.pieces[i - 1][j] == check) {
+                    if (this.pieces[i][j] == this.turn && this.pieces[i - 1][j] == check) {
                         for (var k = i - 1; k >= 0; k--) {
-                            if (this.pieces[k][j] == turn)
+                            if (this.pieces[k][j] == this.turn)
                                 k = -1;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
                                 this.pieces[k][j] = 3;
@@ -114,7 +100,7 @@ class Board {
 
                 //check for D
                 if (i != 6 && i != 7) {
-                    if (this.pieces[i][j] == turn && this.pieces[i + 1][j] == check) {
+                    if (this.pieces[i][j] == this.turn && this.pieces[i + 1][j] == check) {
                         for (var k = i + 1; k < 8; k++) {
                             if (this.pieces[k][j] == turn) k = 8;
                             else if (this.pieces[k][j] == 0|| this.pieces[k][j] == 3) {
@@ -128,9 +114,9 @@ class Board {
                 }
                 //check for L
                 if (j != 0 && j != 1) {
-                    if (this.pieces[i][j] == turn && this.pieces[i][j - 1] == check) {
+                    if (this.pieces[i][j] == this.turn && this.pieces[i][j - 1] == check) {
                         for (var k = j - 1; k >= 0; k--) {
-                            if (this.pieces[i][k] == turn) k = -1;
+                            if (this.pieces[i][k] == this.turn) k = -1;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
                                 this.skip = false;
@@ -143,9 +129,9 @@ class Board {
 
                 //check for R
                 if (j != 6 && j != 7) {
-                    if (this.pieces[i][j] == turn && this.pieces[i][j + 1] == check) {
+                    if (this.pieces[i][j] == this.turn && this.pieces[i][j + 1] == check) {
                         for (var k = j + 1; k < 8; k++) {
-                            if (this.pieces[i][k] == turn) k = 8;
+                            if (this.pieces[i][k] == this.turn) k = 8;
                             else if (this.pieces[i][k] == 0|| this.pieces[i][k] == 3) {
                                 this.pieces[i][k] = 3;
                                 this.skip = false;
@@ -158,11 +144,11 @@ class Board {
 
                 //check for top right
                 if (i > 1 && j < 6) {
-                    if (this.pieces[i][j] == turn && this.pieces[i - 1][j + 1] == check) {
+                    if (this.pieces[i][j] == this.turn && this.pieces[i - 1][j + 1] == check) {
                         var k = i -1;
                         var q = j + 1;
                         while(k >= 0 && q < 8) {
-                            if (this.pieces[k][q] == turn) {
+                            if (this.pieces[k][q] == this.turn) {
                                 k = -1;
                                 q = 8;
                             }
@@ -183,11 +169,11 @@ class Board {
 
                 //check for bottom right
                 if (i < 6 && j < 6) {
-                    if (this.pieces[i][j] == turn && this.pieces[i + 1][j + 1] == check) {
+                    if (this.pieces[i][j] == this.turn && this.pieces[i + 1][j + 1] == check) {
                         var k = i + 1;
                         var q = j + 1;
                         while(k < 8 && q < 8) {
-                            if (this.pieces[k][q] == turn) {
+                            if (this.pieces[k][q] == this.turn) {
                                 k = 8;
                                 q = 8;
                             }
@@ -208,11 +194,11 @@ class Board {
 
                 //check for bottom left
                 if (i < 6 && j > 1) {
-                    if (this.pieces[i][j] == turn && this.pieces[i + 1][j - 1] == check) {
+                    if (this.pieces[i][j] == this.turn && this.pieces[i + 1][j - 1] == check) {
                         var k = i + 1;
                         var q = j - 1;
                         while(k < 8 && q >= 0) {
-                            if (this.pieces[k][q] == turn) {
+                            if (this.pieces[k][q] == this.turn) {
                                 k = 8;
                                 q = -1;
                             }
@@ -233,11 +219,11 @@ class Board {
 
                 //check for top left
                 if (i > 1 && j > 1) {
-                    if (this.pieces[i][j] == turn && this.pieces[i - 1][j - 1] == check) {
+                    if (this.pieces[i][j] == this.turn && this.pieces[i - 1][j - 1] == check) {
                         var k = i - 1;
                         var q = j - 1;
                         while(k >= 0 && q >= 0) {
-                            if (this.pieces[k][q] == turn) {
+                            if (this.pieces[k][q] == this.turn) {
                                 k = -1;
                                 q = -1;
                             }
@@ -259,8 +245,6 @@ class Board {
         }
     }
 
-    //#endregion availableBoard
-
     //#region flipBoard
     //we check the direction array from the board object
     //flip the corresponding direction
@@ -270,8 +254,8 @@ class Board {
             //U flips to the downwards direction
             if(direction[i] == "U") {
                 for(var j = row+1; j < 8; j++) {
-                    if(this.pieces[j][column] != turn){
-                        this.pieces[j][column] = turn;
+                    if(this.pieces[j][column] != this.turn){
+                        this.pieces[j][column] = this.turn;
                     }
                     else {
                         j = 8;
@@ -281,8 +265,8 @@ class Board {
             //D flips the upwards direction
             if(direction[i] == "D") {
                 for(var j = row-1; j >= 0; j--) {
-                    if(this.pieces[j][column] != turn){
-                        this.pieces[j][column] = turn;
+                    if(this.pieces[j][column] != this.turn){
+                        this.pieces[j][column] = this.turn;
                     }
                     else {
                         j = -1;
@@ -292,8 +276,8 @@ class Board {
             //R flips the leftwards direction
             if(direction[i] == "R") {
                 for(var j = column-1; j >= 0; j--) {
-                    if(this.pieces[row][j] != turn){
-                        this.pieces[row][j] = turn;
+                    if(this.pieces[row][j] != this.turn){
+                        this.pieces[row][j] = this.turn;
                     }
                     else {
                         j = -1;
@@ -303,8 +287,8 @@ class Board {
             //L flips the rightwards direction
             if(direction[i] == "L") {
                 for(var j = column+1; j < 8; j++) {
-                    if(this.pieces[row][j] != turn){
-                        this.pieces[row][j] = turn;
+                    if(this.pieces[row][j] != this.turn){
+                        this.pieces[row][j] = this.turn;
                     }
                     else {
                         j = 8;
@@ -316,8 +300,8 @@ class Board {
                 var k = row+1;
                 var q = column-1;
                 while(k < 8 && q >= 0) {
-                    if(this.pieces[k][q] != turn){
-                        this.pieces[k][q] = turn;
+                    if(this.pieces[k][q] != this.turn){
+                        this.pieces[k][q] = this.turn;
                     }
                     else {
                         k = 8;
@@ -332,8 +316,8 @@ class Board {
                 var k = row-1;
                 var q = column-1;
                 while(k >= 0 && q >= 0) {
-                    if(this.pieces[k][q] != turn){
-                        this.pieces[k][q] = turn;
+                    if(this.pieces[k][q] != this.turn){
+                        this.pieces[k][q] = this.turn;
                     }
                     else {
                         k = -1;
@@ -348,8 +332,8 @@ class Board {
                 var k = row-1;
                 var q = column+1;
                 while(k >= 0 && q < 8) {
-                    if(this.pieces[k][q] != turn){
-                        this.pieces[k][q] = turn;
+                    if(this.pieces[k][q] != this.turn){
+                        this.pieces[k][q] = this.turn;
                     }
                     else {
                         k = -1;
@@ -364,8 +348,8 @@ class Board {
                 var k = row+1;
                 var q = column+1;
                 while(k < 8 && q < 8) {
-                    if(this.pieces[k][q] != turn){
-                        this.pieces[k][q] = turn;
+                    if(this.pieces[k][q] != this.turn){
+                        this.pieces[k][q] = this.turn;
                     }
                     else {
                         k = 8;
@@ -385,40 +369,42 @@ class Board {
         this.white = 0;
         for(var i = 0; i < 8; i++) {
             for(var j = 0; j < 8; j++){
-                if(this.pieces[i][j] == "2") this.black++;
-                if(this.pieces[i][j] == "1") this.white++;
+                if(this.pieces[i][j] == 2) this.black++;
+                if(this.pieces[i][j] == 1) this.white++;
             }
         }
     }
 
     // calculate evaluation score for this board.
-    getEvaluationScore() {
-        var score = 0;
+    getNumberOfPossibleMoves() {
+        var s = 0;
 
         // this is very inefficient. Please change the availableBoard() function soon.
         this.availableBoard();
 
         // if at opening or mid game
-        if (this.white + this.black <= 48) {
+        //if (this.white + this.black <= 48) {
             // get total playable moves
             for (var i=0; i<8; i++) {
                 for (var j=0; j<8; j++) {
-                    if (ps[i][j]==3) {
-                        // check if it's a corner
-                        if ((i==0 && j==0) || (i==0 && j==8) || (i==8 && j==0) || (i==8 && j==8))
-                        {
-                            score+=10;
-                        }
-                        else if (i==0 || i==8 || j==0 || j==8) {
-                            score+=2;
-                        }
-                        else score++;
+                    if (this.pieces[i][j]==3) {
+                        s++;
                     }
                 }
             }
-        }
+        //}
 
-        return score;
+        return s;
+    }
+
+    // set Evaluation Score
+    setEvalScore(score) {
+        this.score = score;
+    }
+
+    // get Evaluation Score
+    getEvaluationScore() {
+        return this.score;
     }
 }
 
@@ -427,9 +413,6 @@ class Board {
 var gap = 5;
 var cellWidth = 60;
 var pieces_layer;
-//turn 1 = white turns
-//turn 2 = black turns
-var turn = 2;
 
 //initalize the starting board
 const curBoard = new Board();
@@ -443,8 +426,8 @@ window.onload = function () {
 
 let skip_bot = document.getElementById("skip_btn");
 skip_bot.onclick = function () {
-    if(turn == 1) turn = 2;
-    else turn = 1;
+    if(curBoard.turn == 1) curBoard.turn = 2;
+    else curBoard.turn = 1;
     skip_bot.style.display = "none";
     drawpieces();
 }
@@ -456,7 +439,7 @@ function updatescoreboard() {
     w_score.textContent = curBoard.white;
     b_score.textContent = curBoard.black;
     const player = document.getElementById("turn");
-    if (turn == 2) {
+    if (curBoard.turn == 2) {
         player.textContent = "Black's turn";
     }
     else player.textContent = "White's turn";
@@ -467,11 +450,11 @@ function drawpieces() {
     pieces_layer.innerHTML = "";
     curBoard.availableBoard();
     if(curBoard.skip == true){
-        if(turn == 2) {
+        if(curBoard.turn == 2) {
             skip_bot.style.display = "flex";
         }
         else {
-            turn = 2;
+            curBoard.turn = 2;
             curBoard.availableBoard();
         }
     }
@@ -496,14 +479,14 @@ function drawpieces() {
                     }
                     document.getElementById("board").appendChild(piece);
                 }
-    
+
             }
         }
 
     //}
 }
 
-//createing a board here
+//creating a board here
 function drawBoard() {
     for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
@@ -528,7 +511,7 @@ function clearBoard() {
     }
     for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
-            if (curBoard.pieces[i][j] == 3) curBoard.pieces[i][j] = "0";
+            if (curBoard.pieces[i][j] == 3) curBoard.pieces[i][j] = 0;
         }
     }
     curBoard.clearMove();
@@ -540,136 +523,268 @@ function clearBoard() {
 function clickedBoard(row, column) {
     //curBoard.played++;
     if (curBoard.pieces[row][column] == 3) {
-        if (turn == 1) {
-            curBoard.pieces[row][column] = "1";
+        if (curBoard.turn == 1) {
+            curBoard.pieces[row][column] = 1;
             curBoard.flipBoard(row, column);
 
-            // Now, the bot's turn
-            // here, call the minimax function and get the next move.
-            // var map = new Map();
-            // var moves = new Array<Position>(0);
-            // var bestScore = minimax(curBoard, true, 0, moves, map);
-            // var nextPos = moves[moves.length()-1];
-            // curBoard.flipBoard(nextPos.row(), nextPos.col());
-
-
-            turn = 2;
+            curBoard.turn = 2;
+            //console.log("Turn: " + curBoard.turn);
         }
-        // default the bot to play at turn 2 -- Bot plays Black
-        else if (turn == 2) {
-            curBoard.pieces[row][column] = "2";
+        // default the bot to play at turn 1 -- Bot plays White
+        else if (curBoard.turn == 2) {
+            curBoard.pieces[row][column] = 2;
             curBoard.flipBoard(row, column);
-            turn = 1;
+            curBoard.turn = 1;
+            // RP: comment this if you don't the bot
+            // setTimeout(function(){
+            //     var s = curBoard;
+            //     var nextMoves = [[]];
+            //     var nextScore = minimax(s, true, 0, curBoard.turn, nextMoves);
+            //     console.log("next Score: " + nextScore);
 
+            //     // after minimax, we should have the next move saved in our nextMoves array
+            //     var n = nextMoves.length;
+            //     var r = nextMoves[n-1][0];
+            //     var c = nextMoves[n-1][1];
+
+            //     console.log("Bot flipping " + r + " " + c);
+            //     curBoard.pieces[r][c] = 1;
+            //     curBoard.flipBoard(r, c);
+            //     curBoard.turn = 1;
+            //     curBoard.turn = 2;
+            //     clearBoard();
+            //     drawpieces();
+            // },500);
         }
     }
     clearBoard();
     drawpieces();
 }
 
-// returns the board after a move at [row,column]
-// function boardAfterClicked(board, row, column, curTurn) {
-//     var newBoard = board;
-//     if (curTurn == 1) {
-//         newBoard.pieces[row][column] = "1";
-//         newBoard.flipBoard(row, column);
-//         curTurn = 2;
-//     }
-//     else if (curTurn == 2) {
-//         newBoard.pieces[row][column] = "2";
-//         newBoard.flipBoard(row, column);
-//         curTurn = 1;
-//     }
-//     return newBoard;
-// }
 //****************************-End Rendering-************************************* */
+//****************************-Minimax algorithm Starts Here-************************************* */
+
+// returns the board after a move at [row,column]
+// RP Problem: this function is actually flipping the board and show it to the screen when it's
+// supposed to return a board after a fake click
+ function boardAfterClicked(board, row, column, curTurn) {
+    var newBoard = copyBoard(board);
+    newBoard.availableBoard();
+    if (curTurn == 1) { //white
+        newBoard.pieces[row][column] = 1;
+        newBoard.flipBoard(row, column);
+        curturn = 2;
+    }
+    else if (curTurn == 2) { //black
+        newBoard.pieces[row][column] = 2;
+        newBoard.flipBoard(row, column);
+        curTurn = 1;
+    }
+    return newBoard;
+}
+
+// Return the array of all possible next board from a starting board
+ function possibleMoves(s) {
+
+    let boardCopy = copyBoard(s);
+    var moves = [];
+    // for each available move in s.pieces
+    for (var i=0; i<8; i++) {
+        for (var j=0; j<8; j++) {
+            // for each possible next move, represented by number 3
+            if (boardCopy[i][j] === 3) {
+                console.log("here:"+ i + " " + j);
+                moves.push({i: i, j: j, evaluationScore: 0, avoid: false});
+            }
+        }
+    }
+    return moves;
+}
+
 //****************************-Minimax algorithm Starts Here-************************************* */
 
 
 // Pay attention to the case when a user skips
-function minimax(s, is_max, depth, moves, map){
+ function minimax(s, is_max, depth, curTurn, nextMoves){
+    var nextTurn = curTurn == 1 ? 2 : 1;
 
-    var curTurn = is_max ? 2 : 1;
-    var nextRow;
-    var nextCol;
+    var moves = possibleMoves(s.pieces);
+    var model, count;
 
-    // if reaches the maximum depth, returns value
-    if(depth == 6) {
-        return state.getEvaluationScore();
+    console.log("possible next boards: " + moves.length);
+
+    // increase to 6 after things work
+    if(depth == 2) {
+        console.log("score " + s.getEvaluationScore());
+        return s.getEvaluationScore();
     }
     // If we are at the maximizer
     if(is_max == true) {
-        var highest = MIN_VALUE;
+        console.log("was in maximizer at depth " + depth);
+        var highest = -100000;
+        var nextRow = 0;
+        var nextCol = 0;
 
-        var nextBoards = nextPossibleBoards(s, curTurn, map);
-        // if there's no next move,
-        if (nextBoards.length()==0) {
-            var cur = minimax(s, false, depth+1, moves, map);
+        // if there's no next move, means we are skipping this move
+        // increase depth by one, change turns
+        if (moves.length==0) {
+            var cur = minimax(s, false, depth+1, nextTurn, nextMoves);
             if (cur>highest) {
                 highest = cur;
-                nextRow = map.get(s)[0];
-                nextCol = map.get(s)[1];
+                nextMoves.push([-1, -1]);
             }
         }
+        // if there are multiple next moves, we evaluate each of them
+        // by making the "fake" moves, get evaluation score of that next board,
+        // save it in the move data structure.
         else {
             // evaluate all possible next moves
-            for(board in nextBoards) {
-                var cur = minimax(board, false, depth+1, moves, map);
-                if (cur>highest) {
+            console.log("Evaluating next moves\n");
+            // get the value for score multiplication. if White (turn=1) playing, it's 1
+            // if Black (turn=2) playing, it's -1
+            // So, higher score is better for White
+            var multi = curTurn == 1 ? 1 : -1;
+            for (var n = 0; n < moves.length; n++) {
+                model = copyBoard(s);
+
+                // evaluate if the move is Bad (near corner) or wanted (corner)
+                if (checkBadMove(moves[n].i, moves[n].j))
+                    moves[n].evaluationScore -=  multi * 2;
+                if (checkWantedMove(moves[n].i, moves[n].j))
+                    moves[n].evaluationScore += multi * 10;
+                // make the next move
+                var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
+                // evaluate next board's mobility score
+                moves[n].evaluationScore += nextBoard.getNumberOfPossibleMoves() * multi;
+
+                // TODO: add ratio of previous board/this board's number of moves
+                // in our evaluation
+
+                console.log("next board's eva score: " + moves[n].evaluationScore);
+                // set score for that Board
+                nextBoard.setEvalScore(moves[n].evaluationScore);
+                // call minimax
+                var cur = minimax(nextBoard, false, depth+1, nextTurn);
+                if (cur > highest) {
                     highest = cur;
-                    nextRow = map.get(board)[0];
-                    nextCol = map.get(board)[1];
+                    console.log("next Row: " + nextRow + " next Col: " + nextCol);
+                    nextRow = moves[n].i;
+                    nextCol = moves[n].j;
                 }
+
             }
+            // add the next move into our array of moves
+            nextMoves.push([nextRow, nextCol]);
+            return highest;
         }
-        var pos = new Position(nextRow, nextCol);
-        moves.appendChild(pos);
     }
     // If we are at the minimizer
     else {
-        var lowest = MAX_VALUE;
-        var nextBoards = nextPossibleBoards(s, curTurn, map);
-        // if there's no next move,
-        if (nextBoards.length()==0) {
-            var cur = minimax(s, true, depth+1, moves, map);
+        console.log("was in minimizer at depth " + depth);
+        var lowest = 100000;
+        var nextRow = 0;
+        var nextCol = 0;
+
+        // if there's no next move, means we are skipping this move
+        // increase depth by one, change turns
+        if (moves.length==0) {
+            var cur = minimax(s, true, depth+1, nextTurn);
             if (cur < lowest) {
                 lowest = cur;
-                nextRow = map.get(s)[0];
-                nextCol = map.get(s)[1];
+                //console.log("next " + nextRow + " " + nextCol);
+                nextMoves.push([-1, -1]);
             }
         }
+        // if there are multiple next moves, we evaluate each of them
+        // by making the "fake" moves, get evaluation score of that next board,
+        // save it in the move data structure.
         else {
             // evaluate all possible next moves
-            for(board in nextBoards) {
-                var cur = minimax(board, true, depth+1, moves, map);
+            console.log("Evaluating next moves\n");
+            // get the value for score multiplication. if White (turn=1) playing, it's 1
+            // if Black (turn=2) playing, it's -1
+            // So, higher score is better for White
+            var multi = curTurn == 1 ? 1 : -1;
+            for (var n = 0; n < moves.length; n++) {
+                model = copyBoard(s);
+                // evaluate if the move is Bad (near corner) or wanted (corner)
+                if (checkBadMove(moves[n].i, moves[n].j))
+                    moves[n].evaluationScore -=  multi * 2;
+                if (checkWantedMove(moves[n].i, moves[n].j))
+                    moves[n].evaluationScore += multi * 10;
+                // make the next move
+                var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
+                // evaluate next board's mobility score
+                moves[n].evaluationScore += nextBoard.getNumberOfPossibleMoves() * multi;
+
+                // set score for that Board
+                nextBoard.setEvalScore(moves[n].evaluationScore);
+                // call minimax
+                var cur = minimax(nextBoard, true, depth+1, nextTurn);
                 if (cur < lowest) {
                     lowest = cur;
-                    nextRow = map.get(board)[0];
-                    nextCol = map.get(board)[1];
+                    console.log("next Row: " + nextRow + " next Col: " + nextCol);
+                    nextRow = moves[n].i;
+                    nextCol = moves[n].j;
                 }
+
             }
+
+            // add the next move into our array of moves
+            nextMoves.push([nextRow, nextCol]);
+            return lowest;
         }
-        var pos = new Position(nextRow, nextCol);
-        moves.appendChild(pos);
     }
+}
+
+// Returns a copy the board we are judging
+function copyBoard(s) {
+    var newBoard = s;
+    return newBoard;
+}
+
+
+// set value and then call flipBoard
+function makeRealMove(i, j) {
 
 }
 
-// TODO:
-// Return the array of all possible next board from a starting board
-// if at maximizer, curTurn = 2. If at minimizer, curTurn = 1.
-function nextPossibleBoards(s, curTurn, map) {
-    var listBoard = new Array<Board>(0);
-    var possibleMoves = s.pieces;
-    // for each available move in s.pieces
-    for (var i=0; i<8; i++) {
-        for (var j=0; j<8; j++) {
-            if (possibleMoves[i][j] == 3) {
-                // generate a new board with this square clicked
-                var nextBoard = boardAfterClicked(s, i, j, curTurn);
-                map.set(nextBoard, [i,j]);
-                listBoard.appendChild(nextBoard);
-            }
-        }
+// function checkHorizontal(board, turn, i, j) {
+//     for ()
+// }
+
+
+// check for near-corner moves -- moves we don't want
+function checkBadMove(i, j){
+    if ((i==1 && j==1) || (i==1 && j==6) || (i==6 && j==1) || (i==6 && j==6))
+        return true;
+    return false;
+}
+
+// check for corner moves -- moves we want
+function checkWantedMove(i, j) {
+    if ((i==0 && j==0) || (i==0 && j==7) || (i==7 && j==0) || (i==7 && j==7))
+        return true;
+    return false;
+}
+
+
+// better score means better for white
+function moveSort(move1, move2) {
+    if (move1.evaluationScore < move2.evaluationScore)
+        return 1;
+    else if (move1.evaluationScore > move2.evaluationScore)
+        return -1;
+    else {
+        // central judging --
+        if (move1.i < move2.i)
+            return -1;
+        if (move1.i > move2.i)
+            return 1;
+        if (move1.j < move2.j)
+            return -1;
+        if (move1.j > move2.j)
+            return 1;
+        return 0;
     }
 }
