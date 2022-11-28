@@ -538,14 +538,14 @@ function clickedBoard(row, column) {
             // RP: comment this if you don't the bot
             // setTimeout(function(){
             //     var s = curBoard;
-            //     var nextMoves = [[]];
+            //     var nextMoves = [];
             //     var nextScore = minimax(s, true, 0, curBoard.turn, nextMoves);
             //     console.log("next Score: " + nextScore);
 
             //     // after minimax, we should have the next move saved in our nextMoves array
             //     var n = nextMoves.length;
-            //     var r = nextMoves[n-1][0];
-            //     var c = nextMoves[n-1][1];
+            //     var r = nextMoves[n-1].i;
+            //     var c = nextMoves[n-1].j;
 
             //     console.log("Bot flipping " + r + " " + c);
             //     curBoard.pieces[r][c] = 1;
@@ -603,7 +603,6 @@ function clickedBoard(row, column) {
 
 //****************************-Minimax algorithm Starts Here-************************************* */
 
-
 // Pay attention to the case when a user skips
  function minimax(s, is_max, depth, curTurn, nextMoves){
     var nextTurn = curTurn == 1 ? 2 : 1;
@@ -631,7 +630,7 @@ function clickedBoard(row, column) {
             var cur = minimax(s, false, depth+1, nextTurn, nextMoves);
             if (cur>highest) {
                 highest = cur;
-                nextMoves.push([-1, -1]);
+                nextMoves.push({i: -1, j: -1});
             }
         }
         // if there are multiple next moves, we evaluate each of them
@@ -664,7 +663,7 @@ function clickedBoard(row, column) {
                 // set score for that Board
                 nextBoard.setEvalScore(moves[n].evaluationScore);
                 // call minimax
-                var cur = minimax(nextBoard, false, depth+1, nextTurn);
+                var cur = minimax(nextBoard, false, depth+1, nextTurn, nextMoves);
                 if (cur > highest) {
                     highest = cur;
                     console.log("next Row: " + nextRow + " next Col: " + nextCol);
@@ -674,7 +673,7 @@ function clickedBoard(row, column) {
 
             }
             // add the next move into our array of moves
-            nextMoves.push([nextRow, nextCol]);
+            nextMoves.push({i: nextRow, j: nextCol});
             return highest;
         }
     }
@@ -688,11 +687,11 @@ function clickedBoard(row, column) {
         // if there's no next move, means we are skipping this move
         // increase depth by one, change turns
         if (moves.length==0) {
-            var cur = minimax(s, true, depth+1, nextTurn);
+            var cur = minimax(s, true, depth+1, nextTurn, nextMoves);
             if (cur < lowest) {
                 lowest = cur;
                 //console.log("next " + nextRow + " " + nextCol);
-                nextMoves.push([-1, -1]);
+                nextMoves.push({i: -1, j: -1});
             }
         }
         // if there are multiple next moves, we evaluate each of them
@@ -720,7 +719,7 @@ function clickedBoard(row, column) {
                 // set score for that Board
                 nextBoard.setEvalScore(moves[n].evaluationScore);
                 // call minimax
-                var cur = minimax(nextBoard, true, depth+1, nextTurn);
+                var cur = minimax(nextBoard, true, depth+1, nextTurn, nextMoves);
                 if (cur < lowest) {
                     lowest = cur;
                     console.log("next Row: " + nextRow + " next Col: " + nextCol);
@@ -729,9 +728,8 @@ function clickedBoard(row, column) {
                 }
 
             }
-
             // add the next move into our array of moves
-            nextMoves.push([nextRow, nextCol]);
+            nextMoves.push({i: nextRow, j: nextCol});
             return lowest;
         }
     }
