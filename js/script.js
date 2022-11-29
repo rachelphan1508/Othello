@@ -406,6 +406,14 @@ class Board {
     getEvaluationScore() {
         return this.score;
     }
+
+    setPieces(pieces) {
+        this.pieces = pieces;
+    }
+
+    displayPieces() {
+        console.log(this.pieces);
+    }
 }
 
 
@@ -421,7 +429,7 @@ const curBoard = new Board();
 window.onload = function () {
     pieces_layer = document.getElementById("pieces_layer");
     drawBoard();
-    drawpieces();
+    drawpieces(curBoard);
 }
 
 let skip_bot = document.getElementById("skip_btn");
@@ -429,7 +437,7 @@ skip_bot.onclick = function () {
     if(curBoard.turn == 1) curBoard.turn = 2;
     else curBoard.turn = 1;
     skip_bot.style.display = "none";
-    drawpieces();
+    drawpieces(curBoard);
 }
 
 function updatescoreboard() {
@@ -445,7 +453,7 @@ function updatescoreboard() {
     else player.textContent = "White's turn";
 }
 
-function drawpieces() {
+function drawpieces(curBoard) {
     updatescoreboard();
     pieces_layer.innerHTML = "";
     curBoard.availableBoard();
@@ -535,30 +543,37 @@ function clickedBoard(row, column) {
             curBoard.pieces[row][column] = 2;
             curBoard.flipBoard(row, column);
             curBoard.turn = 1;
+            clearBoard();
+            drawpieces(curBoard);
             // RP: comment this if you don't the bot
-            // setTimeout(function(){
-            //     var s = curBoard;
-            //     var nextMoves = [];
-            //     var nextScore = minimax(s, true, 0, curBoard.turn, nextMoves);
-            //     console.log("next Score: " + nextScore);
+            setTimeout(function(){
+                var s = curBoard;
+                var nextMoves = [];
+                var nextScore = minimax(s, true, 0, curBoard.turn, nextMoves);
+                console.log("next Score: " + nextScore);
 
-            //     // after minimax, we should have the next move saved in our nextMoves array
-            //     var n = nextMoves.length;
-            //     var r = nextMoves[n-1].i;
-            //     var c = nextMoves[n-1].j;
+                // after minimax, we should have the next move saved in our nextMoves array
+                var n = nextMoves.length;
+                var r = nextMoves[n-1].i;
+                var c = nextMoves[n-1].j;
 
-            //     console.log("Bot flipping " + r + " " + c);
-            //     curBoard.pieces[r][c] = 1;
-            //     curBoard.flipBoard(r, c);
-            //     curBoard.turn = 1;
-            //     curBoard.turn = 2;
-            //     clearBoard();
-            //     drawpieces();
-            // },500);
+                console.log("Bot flipping " + r + " " + c);
+
+                // Display curBoard's pieces
+                curBoard.displayPieces();
+                //clickedBoard(r,c);
+                curBoard.pieces[r][c] = 1;
+                curBoard.flipBoard(r, c);
+                // //curBoard.turn = 1;
+                curBoard.turn = 2;
+                //clearBoard();
+                drawpieces(curBoard);
+
+            },500);
         }
     }
     clearBoard();
-    drawpieces();
+    drawpieces(curBoard);
 }
 
 //****************************-End Rendering-************************************* */
@@ -568,8 +583,9 @@ function clickedBoard(row, column) {
 // RP Problem: this function is actually flipping the board and show it to the screen when it's
 // supposed to return a board after a fake click
  function boardAfterClicked(board, row, column, curTurn) {
+
+
     var newBoard = copyBoard(board);
-    newBoard.availableBoard();
     if (curTurn == 1) { //white
         newBoard.pieces[row][column] = 1;
         newBoard.flipBoard(row, column);
@@ -584,9 +600,9 @@ function clickedBoard(row, column) {
 }
 
 // Return the array of all possible next board from a starting board
- function possibleMoves(s) {
+ function possibleMoves(p) {
 
-    let boardCopy = copyBoard(s);
+    let boardCopy = copyPieces(p);
     var moves = [];
     // for each available move in s.pieces
     for (var i=0; i<8; i++) {
@@ -736,9 +752,23 @@ function clickedBoard(row, column) {
 }
 
 // Returns a copy the board we are judging
-function copyBoard(s) {
-    var newBoard = s;
+function copyBoard(p) {
+    var newPieces = copyPieces(p.pieces);
+    var newBoard = new Board();
+    newBoard.setPieces(newPieces);
     return newBoard;
+}
+
+function copyPieces(p) {
+    var newPieces = new Array(8);
+    for (var i = 0; i < 8; i++) {
+        newPieces[i] = new Array(8);
+        for (var j = 0; j < 8; j++) {
+            newPieces[i][j] = p[i][j];
+        }
+    }
+    console.log("new Piece: " + newPieces);
+    return newPieces;
 }
 
 
