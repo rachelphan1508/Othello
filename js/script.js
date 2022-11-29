@@ -566,7 +566,7 @@ function clickedBoard(row, column) {
                 curBoard.flipBoard(r, c);
                 // //curBoard.turn = 1;
                 curBoard.turn = 2;
-                //clearBoard();
+                clearBoard();
                 drawpieces(curBoard);
 
             },500);
