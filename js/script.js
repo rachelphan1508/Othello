@@ -360,6 +360,7 @@ class Board {
                 }
             }
         }
+        this.availableBoard();
     }
     //#endregion flipBoard
 
@@ -380,7 +381,7 @@ class Board {
         var s = 0;
 
         // this is very inefficient. Please change the availableBoard() function soon.
-        this.availableBoard();
+        //this.availableBoard();
 
         // if at opening or mid game
         //if (this.white + this.black <= 48) {
@@ -404,6 +405,19 @@ class Board {
 
     // get Evaluation Score
     getEvaluationScore() {
+        // higher score is better for White
+        var multi = this.turn == 1 ? -1 : 1;
+        //var opponnent = this.turn == 1 ? 2 : 1;
+
+        // check if a corner is taken by this player - wanted move
+        if (this.pieces[0][0] == turn) this.score += multi * 20;
+        if (this.pieces[0][7] == turn) this.score += multi * 20;
+        if (this.pieces[7][0] == turn) this.score += multi * 20;
+        if (this.pieces[7][0] == turn) this.score += multi * 20;
+
+        // get number of next possible moves
+        this.score += multi * this.getNumberOfPossibleMoves();
+
         return this.score;
     }
 
@@ -434,9 +448,41 @@ window.onload = function () {
 
 let skip_bot = document.getElementById("skip_btn");
 skip_bot.onclick = function () {
-    if(curBoard.turn == 1) curBoard.turn = 2;
-    else curBoard.turn = 1;
+    // if current turn is the board.
+    if(curBoard.turn == 1) {
+        curBoard.turn = 2;
+    }
+    // if skipping human turn, board's turn (turn == 1): use minimax.
+    else {
+        curBoard.turn = 1;
+        setTimeout(function(){
+            var s = curBoard;
+            var nextMove = new Array(2);
+            var nextScore = minimax(s, true, 0, curBoard.turn, nextMove);
+            console.log("next Score: " + nextScore);
+
+            // after minimax, we should have the next move saved in our nextMoves array
+            //var n = nextMove.length;
+            var r = nextMove[0];
+            var c = nextMove[1];
+            if (0 <= r && r <8 && 0 <= c && c <8) {
+                console.log("Bot flipping " + r + " " + c);
+
+                // Display curBoard's pieces
+                curBoard.displayPieces();
+                //clickedBoard(r,c);
+                curBoard.pieces[r][c] = 1;
+                curBoard.flipBoard(r, c);
+            }
+            curBoard.turn = 2;
+            clearBoard();
+            drawpieces(curBoard);
+
+        },2000);
+
+    }
     skip_bot.style.display = "none";
+    clearBoard();
     drawpieces(curBoard);
 }
 
@@ -535,6 +581,7 @@ function clickedBoard(row, column) {
             curBoard.pieces[row][column] = 1;
             curBoard.flipBoard(row, column);
 
+
             curBoard.turn = 2;
             //console.log("Turn: " + curBoard.turn);
         }
@@ -548,22 +595,23 @@ function clickedBoard(row, column) {
             // RP: comment this if you don't the bot
             setTimeout(function(){
                 var s = curBoard;
-                var nextMoves = [];
-                var nextScore = minimax(s, true, 0, curBoard.turn, nextMoves);
+                var nextMove = new Array(2);
+                var nextScore = minimax(s, true, 0, curBoard.turn, nextMove);
                 console.log("next Score: " + nextScore);
 
                 // after minimax, we should have the next move saved in our nextMoves array
-                var n = nextMoves.length;
-                var r = nextMoves[n-1].i;
-                var c = nextMoves[n-1].j;
+                //var n = nextMoves.length;
+                var r = nextMove[0];
+                var c = nextMove[1];
+                if (r != -1 && c != -1) {
+                    console.log("Bot flipping " + r + " " + c);
 
-                console.log("Bot flipping " + r + " " + c);
-
-                // Display curBoard's pieces
-                curBoard.displayPieces();
-                //clickedBoard(r,c);
-                curBoard.pieces[r][c] = 1;
-                curBoard.flipBoard(r, c);
+                    // Display curBoard's pieces
+                    curBoard.displayPieces();
+                    //clickedBoard(r,c);
+                    curBoard.pieces[r][c] = 1;
+                    curBoard.flipBoard(r, c);
+                }
                 // //curBoard.turn = 1;
                 curBoard.turn = 2;
                 clearBoard();
@@ -596,6 +644,7 @@ function clickedBoard(row, column) {
         newBoard.flipBoard(row, column);
         curTurn = 1;
     }
+    newBoard.availableBoard();
     return newBoard;
 }
 
@@ -609,8 +658,8 @@ function clickedBoard(row, column) {
         for (var j=0; j<8; j++) {
             // for each possible next move, represented by number 3
             if (boardCopy[i][j] === 3) {
-                console.log("here:"+ i + " " + j);
-                moves.push({i: i, j: j, evaluationScore: 0, avoid: false});
+                //console.log("here:"+ i + " " + j);
+                moves.push({i: i, j: j, avoid: false});
             }
         }
     }
@@ -620,7 +669,7 @@ function clickedBoard(row, column) {
 //****************************-Minimax algorithm Starts Here-************************************* */
 
 // Pay attention to the case when a user skips
- function minimax(s, is_max, depth, curTurn, nextMoves){
+ function minimax(s, is_max, depth, curTurn, nextMove){
     var nextTurn = curTurn == 1 ? 2 : 1;
 
     var moves = possibleMoves(s.pieces);
@@ -642,11 +691,19 @@ function clickedBoard(row, column) {
 
         // if there's no next move, means we are skipping this move
         // increase depth by one, change turns
-        if (moves.length==0) {
-            var cur = minimax(s, false, depth+1, nextTurn, nextMoves);
+        if (moves.length===0) {
+            // if no next move
+            if (depth === 0)
+            {
+                console.log(" no move for bot");
+                nextMove[0] = -1;
+                nextMove[1] = -1;
+                return 1000;
+            }
+            var cur = minimax(s, false, depth+1, nextTurn, nextMove);
             if (cur>highest) {
                 highest = cur;
-                nextMoves.push({i: -1, j: -1});
+                //nextMoves.push({i: -1, j: -1});
             }
         }
         // if there are multiple next moves, we evaluate each of them
@@ -662,34 +719,37 @@ function clickedBoard(row, column) {
             for (var n = 0; n < moves.length; n++) {
                 model = copyBoard(s);
 
-                // evaluate if the move is Bad (near corner) or wanted (corner)
-                if (checkBadMove(moves[n].i, moves[n].j))
-                    moves[n].evaluationScore -=  multi * 2;
-                if (checkWantedMove(moves[n].i, moves[n].j))
-                    moves[n].evaluationScore += multi * 10;
                 // make the next move
                 var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
-                // evaluate next board's mobility score
-                moves[n].evaluationScore += nextBoard.getNumberOfPossibleMoves() * multi;
-
-                // TODO: add ratio of previous board/this board's number of moves
-                // in our evaluation
-
-                console.log("next board's eva score: " + moves[n].evaluationScore);
-                // set score for that Board
-                nextBoard.setEvalScore(moves[n].evaluationScore);
-                // call minimax
-                var cur = minimax(nextBoard, false, depth+1, nextTurn, nextMoves);
-                if (cur > highest) {
-                    highest = cur;
-                    console.log("next Row: " + nextRow + " next Col: " + nextCol);
-                    nextRow = moves[n].i;
-                    nextCol = moves[n].j;
+                // display next board
+                nextBoard.displayPieces();
+                // forces take a move if it is a corner and player is White
+                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j))
+                {
+                    console.log("Got to the forced take");
+                    nextMove[0] = moves[n].i;
+                    nextMove[1] = moves[n].j;
+                    return 10000;
+                }
+                // forces skip if it's a bad move
+                else if (curTurn == 1 && checkBadMove(moves[n].i, moves[n].j))
+                {
+                    console.log("Got to the bad move");
+                    continue;
+                }
+                else {
+                    // call minimax
+                    var cur = minimax(nextBoard, false, depth+1, nextTurn, nextMove);
+                    console.log("value at depth " + depth + "is " + cur + "\n");
+                    if (cur > highest) {
+                        highest = cur;
+                        console.log("next Row: " + nextRow + " next Col: " + nextCol);
+                        nextMove[0] = moves[n].i;
+                        nextMove[1] = moves[n].j;
+                    }
                 }
 
             }
-            // add the next move into our array of moves
-            nextMoves.push({i: nextRow, j: nextCol});
             return highest;
         }
     }
@@ -703,11 +763,9 @@ function clickedBoard(row, column) {
         // if there's no next move, means we are skipping this move
         // increase depth by one, change turns
         if (moves.length==0) {
-            var cur = minimax(s, true, depth+1, nextTurn, nextMoves);
+            var cur = minimax(s, true, depth+1, nextTurn, nextMove);
             if (cur < lowest) {
                 lowest = cur;
-                //console.log("next " + nextRow + " " + nextCol);
-                nextMoves.push({i: -1, j: -1});
             }
         }
         // if there are multiple next moves, we evaluate each of them
@@ -721,31 +779,31 @@ function clickedBoard(row, column) {
             // So, higher score is better for White
             var multi = curTurn == 1 ? 1 : -1;
             for (var n = 0; n < moves.length; n++) {
+
+                // forces take a move if it is a corner and player is White
+                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j))
+                {
+                    console.log("Got to the forced take at minimizer.");
+                    nextMove[0] = moves[n].i;
+                    nextMove[1] = moves[n].j;
+                    return -10000;
+                }
                 model = copyBoard(s);
-                // evaluate if the move is Bad (near corner) or wanted (corner)
-                if (checkBadMove(moves[n].i, moves[n].j))
-                    moves[n].evaluationScore -=  multi * 2;
-                if (checkWantedMove(moves[n].i, moves[n].j))
-                    moves[n].evaluationScore += multi * 10;
                 // make the next move
                 var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
-                // evaluate next board's mobility score
-                moves[n].evaluationScore += nextBoard.getNumberOfPossibleMoves() * multi;
-
-                // set score for that Board
-                nextBoard.setEvalScore(moves[n].evaluationScore);
+                // display next board
+                nextBoard.displayPieces();
                 // call minimax
-                var cur = minimax(nextBoard, true, depth+1, nextTurn, nextMoves);
+                var cur = minimax(nextBoard, true, depth+1, nextTurn, nextMove);
                 if (cur < lowest) {
                     lowest = cur;
                     console.log("next Row: " + nextRow + " next Col: " + nextCol);
-                    nextRow = moves[n].i;
-                    nextCol = moves[n].j;
+                    nextMove[0] = moves[n].i;
+                    nextMove[1] = moves[n].j;
                 }
 
             }
             // add the next move into our array of moves
-            nextMoves.push({i: nextRow, j: nextCol});
             return lowest;
         }
     }
@@ -767,19 +825,8 @@ function copyPieces(p) {
             newPieces[i][j] = p[i][j];
         }
     }
-    console.log("new Piece: " + newPieces);
     return newPieces;
 }
-
-
-// set value and then call flipBoard
-function makeRealMove(i, j) {
-
-}
-
-// function checkHorizontal(board, turn, i, j) {
-//     for ()
-// }
 
 
 // check for near-corner moves -- moves we don't want
@@ -798,21 +845,21 @@ function checkWantedMove(i, j) {
 
 
 // better score means better for white
-function moveSort(move1, move2) {
-    if (move1.evaluationScore < move2.evaluationScore)
-        return 1;
-    else if (move1.evaluationScore > move2.evaluationScore)
-        return -1;
-    else {
-        // central judging --
-        if (move1.i < move2.i)
-            return -1;
-        if (move1.i > move2.i)
-            return 1;
-        if (move1.j < move2.j)
-            return -1;
-        if (move1.j > move2.j)
-            return 1;
-        return 0;
-    }
-}
+// function moveSort(move1, move2) {
+//     if (move1.evaluationScore < move2.evaluationScore)
+//         return 1;
+//     else if (move1.evaluationScore > move2.evaluationScore)
+//         return -1;
+//     else {
+//         // central judging --
+//         if (move1.i < move2.i)
+//             return -1;
+//         if (move1.i > move2.i)
+//             return 1;
+//         if (move1.j < move2.j)
+//             return -1;
+//         if (move1.j > move2.j)
+//             return 1;
+//         return 0;
+//     }
+// }
