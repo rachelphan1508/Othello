@@ -57,6 +57,7 @@ class Board {
         // game we are at to use the correct evaluation function
         // for our MiniMax Algorithm.
         this.turn = 2;
+        this.is_max = {max: false};
     }
     clearMove() {
         this.move = [
@@ -265,7 +266,7 @@ class Board {
         var direction = this.move[row][column];
         for(var i = 0; i < direction.length; i++) {
             //U flips to the downwards direction
-            if(direction[i] == "U") {
+            if(direction[i] === "U") {
                 for(var j = row+1; j < 8; j++) {
                     if(this.pieces[j][column] != this.turn){
                         this.pieces[j][column] = this.turn;
@@ -276,7 +277,7 @@ class Board {
                 }
             }
             //D flips the upwards direction
-            if(direction[i] == "D") {
+            if(direction[i] === "D") {
                 for(var j = row-1; j >= 0; j--) {
                     if(this.pieces[j][column] != this.turn){
                         this.pieces[j][column] = this.turn;
@@ -287,7 +288,7 @@ class Board {
                 }
             }
             //R flips the leftwards direction
-            if(direction[i] == "R") {
+            if(direction[i] === "R") {
                 for(var j = column-1; j >= 0; j--) {
                     if(this.pieces[row][j] != this.turn){
                         this.pieces[row][j] = this.turn;
@@ -298,7 +299,7 @@ class Board {
                 }
             }
             //L flips the rightwards direction
-            if(direction[i] == "L") {
+            if(direction[i] === "L") {
                 for(var j = column+1; j < 8; j++) {
                     if(this.pieces[row][j] != this.turn){
                         this.pieces[row][j] = this.turn;
@@ -309,7 +310,7 @@ class Board {
                 }
             }
             //UR flips to the down left direction
-            if(direction[i] == "UR") {
+            if(direction[i] === "UR") {
                 var k = row+1;
                 var q = column-1;
                 while(k < 8 && q >= 0) {
@@ -325,7 +326,7 @@ class Board {
                 }
             }
             //DR flips to the up left direction
-            if(direction[i] == "DR") {
+            if(direction[i] === "DR") {
                 var k = row-1;
                 var q = column-1;
                 while(k >= 0 && q >= 0) {
@@ -341,7 +342,7 @@ class Board {
                 }
             }
             //DL flips the up right direction
-            if(direction[i] == "DL") {
+            if(direction[i] === "DL") {
                 var k = row-1;
                 var q = column+1;
                 while(k >= 0 && q < 8) {
@@ -357,7 +358,7 @@ class Board {
                 }
             }
             //UL flips the down right direction
-            if(direction[i] == "UL") {
+            if(direction[i] === "UL") {
                 var k = row+1;
                 var q = column+1;
                 while(k < 8 && q < 8) {
@@ -373,7 +374,6 @@ class Board {
                 }
             }
         }
-        this.availableBoard();
     }
     //#endregion flipBoard
 
@@ -439,6 +439,13 @@ class Board {
         this.pieces = pieces;
     }
 
+    setMoves(directions) {
+        this.move = directions;
+    }
+
+    setTurn(t) {
+        this.turn = t;
+    }
     displayPieces() {
         console.log(this.pieces);
     }
@@ -451,6 +458,7 @@ var cellWidth = 60;
 var pieces_layer;
 //ai = true to play with the ai: plays with p2
 let ai = true;
+let is_max = false;
 
 //initalize the starting board
 const curBoard = new Board();
@@ -512,7 +520,7 @@ skip_bot.onclick = function () {
 
     }
     skip_bot.style.display = "none";
-    curBoard. clearBoard();
+    curBoard.clearBoard();
     drawpieces(curBoard);
 }
 
@@ -604,14 +612,13 @@ function drawBoard() {
 //clickedBoard gives i and j position that the user clicked on the boar
 //call clearBoard to get rid of the 3s in the board and clean the div
 //and update the new board by calling drawpieces function
+//and update the new board by calling drawpieces function
 function clickedBoard(row, column) {
     //curBoard.played++;
     if (curBoard.pieces[row][column] == 3) {
         if (curBoard.turn == 1) {
             curBoard.pieces[row][column] = 1;
             curBoard.flipBoard(row, column);
-
-
             curBoard.turn = 2;
             //console.log("Turn: " + curBoard.turn);
         }
@@ -636,7 +643,7 @@ function clickedBoard(row, column) {
                     var c = nextMove[1];
                     if (r != -1 && c != -1) {
                         console.log("Bot flipping " + r + " " + c);
-
+//
                         // Display curBoard's pieces
                         console.log("line 627");
                         curBoard.displayPieces();
@@ -656,26 +663,22 @@ function clickedBoard(row, column) {
     curBoard.clearBoard();
     drawpieces(curBoard);
 }
-
 //****************************-End Rendering-************************************* */
 //****************************-Minimax algorithm Starts Here-************************************* */
 
-// returns the board after a move at [row,column]
-// RP Problem: this function is actually flipping the board and show it to the screen when it's
-// supposed to return a board after a fake click
- function boardAfterClicked(board, row, column, curTurn) {
+function boardAfterClicked(board, row, column, curTurn) {
     var newBoard = copyBoard(board);
-    console.log("line 667");
-    newBoard.displayPieces();
     if (curTurn == 1 && newBoard.pieces[row][column] == 3) { //white
         newBoard.pieces[row][column] = 1;
         newBoard.flipBoard(row, column);
-        //curturn = 2;
+        newBoard.turn = 2;
+        curTurn = 2;
     }
     else if (curTurn == 2 && newBoard.pieces[row][column] == 3) { //black
         newBoard.pieces[row][column] = 2;
         newBoard.flipBoard(row, column);
-        //curTurn = 1;
+        newBoard.turn = 1;
+        curTurn = 1;
     }
     newBoard.clearBoard();
     newBoard.availableBoard();
@@ -705,7 +708,6 @@ function clickedBoard(row, column) {
 // Pay attention to the case when a user skips
  function minimax(s, is_max, depth, curTurn, nextMove){
     var nextTurn = curTurn == 1 ? 2 : 1;
-
     var moves = possibleMoves(s.pieces);
     var model, count;
 
@@ -729,7 +731,7 @@ function clickedBoard(row, column) {
             // if no next move
             if (depth === 0)
             {
-                console.log(" no move for bot");
+                console.log("no move for bot");
                 nextMove[0] = -1;
                 nextMove[1] = -1;
                 return 1000;
@@ -737,7 +739,6 @@ function clickedBoard(row, column) {
             var cur = minimax(s, false, depth+1, nextTurn, nextMove);
             if (cur>highest) {
                 highest = cur;
-                //nextMoves.push({i: -1, j: -1});
             }
         }
         // if there are multiple next moves, we evaluate each of them
@@ -827,7 +828,7 @@ function clickedBoard(row, column) {
                 // make the next move
                 var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
                 // display next board
-                console.log("line 814");
+                console.log("line 831");
                 nextBoard.displayPieces();
                 // call minimax
                 var cur = minimax(nextBoard, true, depth+1, nextTurn, nextMove);
@@ -855,9 +856,15 @@ function copyBoard(p) {
     //var newMoveBoard = copyMoves(p.move);
     var newBoard = new Board();
     newBoard.setPieces(newPieces);
+    newBoard.setMoves(newMoveBoard);
+    if(p.turn !== 2) {
+        newBoard.setTurn(2);
+    }
+    else {
+        newBoard.setTurn(1);
+    }
     return newBoard;
 }
-
 
 //copyPieces returns the board from the Board class;
 function copyPieces(p) {
@@ -873,11 +880,16 @@ function copyPieces(p) {
 
 
 //copy moves copies the move board from the class of Board
-// function copyMoves(p) {
-//     var newMoves = p.move;
-//     console.log(newMoves);
-//     return newMoves;
-// }
+function copyMoves(p) {
+    var newMoves = new Array(8);
+    for(var i = 0; i < 8; i++) {
+        newMoves[i] = new Array(8);
+       for(var j = 0; j < 8; j++) {
+        newMoves[i][j] = p[i][j];
+       }
+    }
+    return newMoves;
+}
 
 // check for near-corner moves -- moves we don't want
 function checkBadMove(i, j){
@@ -893,23 +905,3 @@ function checkWantedMove(i, j) {
     return false;
 }
 
-
-// better score means better for white
-// function moveSort(move1, move2) {
-//     if (move1.evaluationScore < move2.evaluationScore)
-//         return 1;
-//     else if (move1.evaluationScore > move2.evaluationScore)
-//         return -1;
-//     else {
-//         // central judging --
-//         if (move1.i < move2.i)
-//             return -1;
-//         if (move1.i > move2.i)
-//             return 1;
-//         if (move1.j < move2.j)
-//             return -1;
-//         if (move1.j > move2.j)
-//             return 1;
-//         return 0;
-//     }
-// }
