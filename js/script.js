@@ -70,6 +70,19 @@ class Board {
             [[], [], [], [], [], [], [], []],
         ]
     }
+    //clear all of the div that we rendered on the board with the class name "piece"
+    clearBoard() {
+        const elements = document.getElementsByClassName("piece");
+        while (elements.length > 0) {
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+        for (var i = 0; i < 8; i++) {
+            for (var j = 0; j < 8; j++) {
+                if (this.pieces[i][j] == 3) this.pieces[i][j] = 0;
+            }
+        }
+        this.clearMove();
+    }
     availableBoard() {
         //check is the int that marks the opponent's piece
         //if ur turn is white check = 0 indicating black
@@ -421,8 +434,8 @@ class Board {
         return this.score;
     }
 
-    setPieces(pieces) {
-        this.pieces = pieces;
+    displayPieces() {
+        console.log(this.pieces);
     }
 
     displayPieces() {
@@ -431,10 +444,13 @@ class Board {
 }
 
 
+
 //****************************-Object Class Ends Here-************************************* */
 var gap = 5;
 var cellWidth = 60;
 var pieces_layer;
+//ai = true to play with the ai: plays with p2
+let ai = true;
 
 //initalize the starting board
 const curBoard = new Board();
@@ -445,6 +461,20 @@ window.onload = function () {
     drawBoard();
     drawpieces(curBoard);
 }
+
+let btn_p2 = document.querySelector(".btn-p2")
+btn_p2.onclick = function() {
+    let blk_block = document.querySelector(".starting-page");
+    blk_block.style.display = "none";
+    ai = false; 
+}
+
+let btn_sean = document.querySelector(".btn-sean")
+btn_sean.onclick = function() {
+    let s_p = document.querySelector(".starting-page");
+    s_p.style.display = "none";
+}
+
 
 let skip_bot = document.getElementById("skip_btn");
 skip_bot.onclick = function () {
@@ -475,14 +505,14 @@ skip_bot.onclick = function () {
                 curBoard.flipBoard(r, c);
             }
             curBoard.turn = 2;
-            clearBoard();
+            curBoard.clearBoard();
             drawpieces(curBoard);
 
         },2000);
 
     }
     skip_bot.style.display = "none";
-    clearBoard();
+    curBoard. clearBoard();
     drawpieces(curBoard);
 }
 
@@ -558,18 +588,18 @@ function drawBoard() {
 }
 
 //clear all of the div that we rendered on the board with the class name "piece"
-function clearBoard() {
-    const elements = document.getElementsByClassName("piece");
-    while (elements.length > 0) {
-        elements[0].parentNode.removeChild(elements[0]);
-    }
-    for (var i = 0; i < 8; i++) {
-        for (var j = 0; j < 8; j++) {
-            if (curBoard.pieces[i][j] == 3) curBoard.pieces[i][j] = 0;
-        }
-    }
-    curBoard.clearMove();
-}
+// function clearBoard() {
+//     const elements = document.getElementsByClassName("piece");
+//     while (elements.length > 0) {
+//         elements[0].parentNode.removeChild(elements[0]);
+//     }
+//     for (var i = 0; i < 8; i++) {
+//         for (var j = 0; j < 8; j++) {
+//             if (curBoard.pieces[i][j] == 3) curBoard.pieces[i][j] = 0;
+//         }
+//     }
+//     curBoard.clearMove();
+// }
 
 //clickedBoard gives i and j position that the user clicked on the boar
 //call clearBoard to get rid of the 3s in the board and clean the div
@@ -590,37 +620,40 @@ function clickedBoard(row, column) {
             curBoard.pieces[row][column] = 2;
             curBoard.flipBoard(row, column);
             curBoard.turn = 1;
-            clearBoard();
+            curBoard.clearBoard();
             drawpieces(curBoard);
             // RP: comment this if you don't the bot
-            setTimeout(function(){
-                var s = curBoard;
-                var nextMove = new Array(2);
-                var nextScore = minimax(s, true, 0, curBoard.turn, nextMove);
-                console.log("next Score: " + nextScore);
+            if(ai) {
+                setTimeout(function(){
+                    var s = curBoard;
+                    var nextMove = new Array(2);
+                    var nextScore = minimax(s, true, 0, curBoard.turn, nextMove);
+                    console.log("next Score: " + nextScore);
 
-                // after minimax, we should have the next move saved in our nextMoves array
-                //var n = nextMoves.length;
-                var r = nextMove[0];
-                var c = nextMove[1];
-                if (r != -1 && c != -1) {
-                    console.log("Bot flipping " + r + " " + c);
+                    // after minimax, we should have the next move saved in our nextMoves array
+                    //var n = nextMoves.length;
+                    var r = nextMove[0];
+                    var c = nextMove[1];
+                    if (r != -1 && c != -1) {
+                        console.log("Bot flipping " + r + " " + c);
 
-                    // Display curBoard's pieces
-                    curBoard.displayPieces();
-                    //clickedBoard(r,c);
-                    curBoard.pieces[r][c] = 1;
-                    curBoard.flipBoard(r, c);
-                }
-                // //curBoard.turn = 1;
-                curBoard.turn = 2;
-                clearBoard();
-                drawpieces(curBoard);
+                        // Display curBoard's pieces
+                        console.log("line 627");
+                        curBoard.displayPieces();
+                        //clickedBoard(r,c);
+                        curBoard.pieces[r][c] = 1;
+                        curBoard.flipBoard(r, c);
+                    }
+                    // //curBoard.turn = 1;
+                    curBoard.turn = 2;
+                    curBoard.clearBoard();
+                    drawpieces(curBoard);
 
-            },500);
+                },500);
+            }
         }
     }
-    clearBoard();
+    curBoard.clearBoard();
     drawpieces(curBoard);
 }
 
@@ -631,19 +664,20 @@ function clickedBoard(row, column) {
 // RP Problem: this function is actually flipping the board and show it to the screen when it's
 // supposed to return a board after a fake click
  function boardAfterClicked(board, row, column, curTurn) {
-
-
     var newBoard = copyBoard(board);
-    if (curTurn == 1) { //white
+    console.log("line 667");
+    newBoard.displayPieces();
+    if (curTurn == 1 && newBoard.pieces[row][column] == 3) { //white
         newBoard.pieces[row][column] = 1;
         newBoard.flipBoard(row, column);
         curturn = 2;
     }
-    else if (curTurn == 2) { //black
+    else if (curTurn == 2 && newBoard.pieces[row][column] == 3) { //black
         newBoard.pieces[row][column] = 2;
         newBoard.flipBoard(row, column);
         curTurn = 1;
     }
+    newBoard.clearBoard();
     newBoard.availableBoard();
     return newBoard;
 }
@@ -719,9 +753,11 @@ function clickedBoard(row, column) {
             for (var n = 0; n < moves.length; n++) {
                 model = copyBoard(s);
 
+                console.log(" clicking " + moves[n].i + " " +  moves[n].j);
                 // make the next move
                 var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
                 // display next board
+                console.log("line 758");
                 nextBoard.displayPieces();
                 // forces take a move if it is a corner and player is White
                 if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j))
@@ -792,6 +828,7 @@ function clickedBoard(row, column) {
                 // make the next move
                 var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
                 // display next board
+                console.log("line 814");
                 nextBoard.displayPieces();
                 // call minimax
                 var cur = minimax(nextBoard, true, depth+1, nextTurn, nextMove);
@@ -809,14 +846,18 @@ function clickedBoard(row, column) {
     }
 }
 
+
 // Returns a copy the board we are judging
 function copyBoard(p) {
     var newPieces = copyPieces(p.pieces);
+    var newMoveBoard = copyMoves(p.move);
     var newBoard = new Board();
     newBoard.setPieces(newPieces);
     return newBoard;
 }
 
+
+//copyPieces returns the board from the Board class;
 function copyPieces(p) {
     var newPieces = new Array(8);
     for (var i = 0; i < 8; i++) {
@@ -829,6 +870,37 @@ function copyPieces(p) {
 }
 
 
+//copy moves copies the move board from the class of Board
+function copyMoves(p) {
+    var newMoves = [[]];
+    for(var i =0; i <8; i++) {
+        var temp = []
+        for(var j = 0; j <8; j++) {
+            temp.push(p.move[j]);
+        } 
+    }
+    //print out the move board to check if eveyrthing works or not
+    console.log(newMoves);
+    return newMoves;
+}
+
+<<<<<<< HEAD
+=======
+//copy moves copies the move board from the class of Board
+function copyMoves(p) {
+    var newMoves = [[]];
+    for(var i =0; i <8; i++) {
+        var temp = []
+        for(var j = 0; j <8; j++) {
+            temp.push(p.move[j]);
+        } 
+    }
+    //print out the move board to check if eveyrthing works or not
+    console.log(newMoves);
+    return newMoves;
+}
+
+>>>>>>> 230b77781bebd85e6e6e134e2315d45dd7266f31
 // check for near-corner moves -- moves we don't want
 function checkBadMove(i, j){
     if ((i==1 && j==1) || (i==1 && j==6) || (i==6 && j==1) || (i==6 && j==6))
@@ -843,25 +915,6 @@ function checkWantedMove(i, j) {
     return false;
 }
 
-// better for agent means lower score for player
-function moveSort(move1, move2) {
-    if (move1.opponentScore < move2.opponentScore)
-        return 1;
-    else if (move1.opponentScore > move2.opponentScore)
-        return -1;
-    else {
-        // central judging --
-        if (move1.i < move2.i)
-            return -1;
-        if (move1.i > move2.i)
-            return 1;
-        if (move1.j < move2.j)
-            return -1;
-        if (move1.j > move2.j)
-            return 1;
-        return 0;
-    }
-}
 
 // better score means better for white
 // function moveSort(move1, move2) {

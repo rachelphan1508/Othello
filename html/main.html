@@ -1,24 +1,38 @@
-<html>
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="/css/style.css" />
-    <script src="/js/script.js" defer></script>
-    <title>CS 340 Reversi</title>
-  </head>
-  <body>
-    <div id="page">
-      <div id="scoreboard">
-        <div id="turn">2</div>
-        <div class="icon" id="white-icon"></div>
-        <div class="score" id="white-score">2</div>
-        <div class="icon" id="black-icon"></div>
-        <div class="score" id="black-score">2</div>
-        <div id="btn">
-          <button id="skip_btn">SKIP</button>
+<head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kanit" />
+  <meta name="viewport" http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <script src="/js/script.js" defer></script>
+  <title>CS 340 Reversi</title>
+</head>
+<body>
+  <div id="page">
+    <div class="blk-page starting-page">
+      <div class="blk-block">
+        <div class="blk-title">
+          <h3>Choose a Mode</h3>
+        </div>
+        <div class="blk-option">
+          <div class="blk-block">
+            <button class="btn btn-p2">Play with P2</button>
+          </div>
+          <div class="blk-block">
+            <button class="btn btn-sean">Play with Sean</button>
+          </div>
         </div>
       </div>
-      <div id="board"></div>
-      <div id="pieces_layer"></div>
     </div>
-  </body>
-</html>
+    <div id="scoreboard">
+      <div id="turn"></div>
+      <div class="icon" id="white-icon"></div>
+      <div class="score" id="white-score">2</div>
+      <div class="icon" id="black-icon"></div>
+      <div class="score" id="black-score">2</div>
+      <div id="btn">
+        <button id="skip_btn">SKIP</button>
+      </div>
+    </div>
+    <div id="board"></div>
+    <div id="pieces_layer"></div>
+  </div>
+</body>
