@@ -849,7 +849,7 @@ function clickedBoard(row, column) {
 // Returns a copy the board we are judging
 function copyBoard(p) {
     var newPieces = copyPieces(p.pieces);
-    var newMoveBoard = copyMoves(p.move);
+    //var newMoveBoard = copyMoves(p.move);
     var newBoard = new Board();
     newBoard.setPieces(newPieces);
     return newBoard;
@@ -870,18 +870,11 @@ function copyPieces(p) {
 
 
 //copy moves copies the move board from the class of Board
-function copyMoves(p) {
-    var newMoves = [[]];
-    for(var i =0; i <8; i++) {
-        var temp = []
-        for(var j = 0; j <8; j++) {
-            temp.push(p.move[j]);
-        } 
-    }
-    //print out the move board to check if eveyrthing works or not
-    console.log(newMoves);
-    return newMoves;
-}
+// function copyMoves(p) {
+//     var newMoves = p.move;
+//     console.log(newMoves);
+//     return newMoves;
+// }
 
 // check for near-corner moves -- moves we don't want
 function checkBadMove(i, j){
