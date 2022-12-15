@@ -419,7 +419,8 @@ class Board {
     // get Evaluation Score
     getEvaluationScore() {
         // higher score is better for White
-        var multi = this.turn == 1 ? -1 : 1;
+        //var multi = this.turn == 1 ? -1 : 1;
+        var multi = 1;
         //var opponnent = this.turn == 1 ? 2 : 1;
 
         // check if a corner is taken by this player - wanted move
@@ -434,15 +435,14 @@ class Board {
         return this.score;
     }
 
-    displayPieces() {
-        console.log(this.pieces);
+    setPieces(pieces) {
+        this.pieces = pieces;
     }
 
     displayPieces() {
         console.log(this.pieces);
     }
 }
-
 
 
 //****************************-Object Class Ends Here-************************************* */
@@ -466,7 +466,7 @@ let btn_p2 = document.querySelector(".btn-p2")
 btn_p2.onclick = function() {
     let blk_block = document.querySelector(".starting-page");
     blk_block.style.display = "none";
-    ai = false; 
+    ai = false;
 }
 
 let btn_sean = document.querySelector(".btn-sean")
@@ -670,12 +670,12 @@ function clickedBoard(row, column) {
     if (curTurn == 1 && newBoard.pieces[row][column] == 3) { //white
         newBoard.pieces[row][column] = 1;
         newBoard.flipBoard(row, column);
-        curturn = 2;
+        //curturn = 2;
     }
     else if (curTurn == 2 && newBoard.pieces[row][column] == 3) { //black
         newBoard.pieces[row][column] = 2;
         newBoard.flipBoard(row, column);
-        curTurn = 1;
+        //curTurn = 1;
     }
     newBoard.clearBoard();
     newBoard.availableBoard();
@@ -693,7 +693,7 @@ function clickedBoard(row, column) {
             // for each possible next move, represented by number 3
             if (boardCopy[i][j] === 3) {
                 //console.log("here:"+ i + " " + j);
-                moves.push({i: i, j: j, avoid: false});
+                moves.push({i: i, j: j, avoid: false, score: 0, wanted: false});
             }
         }
     }
@@ -757,10 +757,9 @@ function clickedBoard(row, column) {
                 // make the next move
                 var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
                 // display next board
-                console.log("line 758");
                 nextBoard.displayPieces();
                 // forces take a move if it is a corner and player is White
-                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j))
+                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j) && depth==0)
                 {
                     console.log("Got to the forced take");
                     nextMove[0] = moves[n].i;
@@ -768,7 +767,7 @@ function clickedBoard(row, column) {
                     return 10000;
                 }
                 // forces skip if it's a bad move
-                else if (curTurn == 1 && checkBadMove(moves[n].i, moves[n].j))
+                else if (curTurn == 1 && checkBadMove(moves[n].i, moves[n].j) && moves.length > 0)
                 {
                     console.log("Got to the bad move");
                     continue;
@@ -832,6 +831,9 @@ function clickedBoard(row, column) {
                 nextBoard.displayPieces();
                 // call minimax
                 var cur = minimax(nextBoard, true, depth+1, nextTurn, nextMove);
+
+                // get the score for
+                moves[n].score = cur;
                 if (cur < lowest) {
                     lowest = cur;
                     console.log("next Row: " + nextRow + " next Col: " + nextCol);
@@ -850,7 +852,7 @@ function clickedBoard(row, column) {
 // Returns a copy the board we are judging
 function copyBoard(p) {
     var newPieces = copyPieces(p.pieces);
-    var newMoveBoard = copyMoves(p.move);
+    //var newMoveBoard = copyMoves(p.move);
     var newBoard = new Board();
     newBoard.setPieces(newPieces);
     return newBoard;
@@ -871,43 +873,19 @@ function copyPieces(p) {
 
 
 //copy moves copies the move board from the class of Board
-function copyMoves(p) {
-    var newMoves = [[]];
-    for(var i =0; i <8; i++) {
-        var temp = []
-        for(var j = 0; j <8; j++) {
-            temp.push(p.move[j]);
-        } 
-    }
-    //print out the move board to check if eveyrthing works or not
-    console.log(newMoves);
-    return newMoves;
-}
+// function copyMoves(p) {
+//     var newMoves = p.move;
+//     console.log(newMoves);
+//     return newMoves;
+// }
 
-<<<<<<< HEAD
-=======
-//copy moves copies the move board from the class of Board
-function copyMoves(p) {
-    var newMoves = [[]];
-    for(var i =0; i <8; i++) {
-        var temp = []
-        for(var j = 0; j <8; j++) {
-            temp.push(p.move[j]);
-        } 
-    }
-    //print out the move board to check if eveyrthing works or not
-    console.log(newMoves);
-    return newMoves;
-}
-
->>>>>>> 230b77781bebd85e6e6e134e2315d45dd7266f31
 // check for near-corner moves -- moves we don't want
 function checkBadMove(i, j){
     if ((i==1 && j==1) || (i==1 && j==6) || (i==6 && j==1) || (i==6 && j==6))
         return true;
     return false;
 }
-
+``
 // check for corner moves -- moves we want
 function checkWantedMove(i, j) {
     if ((i==0 && j==0) || (i==0 && j==7) || (i==7 && j==0) || (i==7 && j==7))
