@@ -13,7 +13,6 @@
     width: 32.8rem;
     height: 32.8rem;
     background-color: darkgrey;
-    
 }
 
 .piece{
@@ -27,11 +26,11 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    width: 32.8rem; 
+    width: 32.8rem;
     height: 3rem;
     background-color: blanchedalmond;
 }
- 
+
 #skip_btn {
     display: none;
 }
@@ -60,4 +59,8 @@
 
 #black-icon {
     background-color: black;
+}
+
+#turn {
+    padding: 2rem;
 }
