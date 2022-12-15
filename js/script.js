@@ -713,7 +713,7 @@ function boardAfterClicked(board, row, column, curTurn) {
     console.log("possible next boards: " + moves.length);
 
     // increase to 6 after things work
-    if(depth == 2) {
+    if(depth === 2 || moves.length === 0) {
         console.log("score " + s.getEvaluationScore());
         return s.getEvaluationScore();
     }
@@ -721,8 +721,6 @@ function boardAfterClicked(board, row, column, curTurn) {
     if(is_max == true) {
         console.log("was in maximizer at depth " + depth);
         var highest = -100000;
-        var nextRow = 0;
-        var nextCol = 0;
 
         // if there's no next move, means we are skipping this move
         // increase depth by one, change turns
@@ -759,7 +757,7 @@ function boardAfterClicked(board, row, column, curTurn) {
                 // display next board
                 nextBoard.displayPieces();
                 // forces take a move if it is a corner and player is White
-                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j) && depth==0)
+                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j) && depth===0)
                 {
                     console.log("Got to the forced take");
                     nextMove[0] = moves[n].i;
@@ -778,9 +776,10 @@ function boardAfterClicked(board, row, column, curTurn) {
                     console.log("value at depth " + depth + "is " + cur + "\n");
                     if (cur > highest) {
                         highest = cur;
-                        console.log("next Row: " + nextRow + " next Col: " + nextCol);
-                        nextMove[0] = moves[n].i;
-                        nextMove[1] = moves[n].j;
+                        if (depth == 0) {
+                            nextMove[0] = moves[n].i;
+                            nextMove[1] = moves[n].j;
+                        }
                     }
                 }
 
@@ -827,7 +826,6 @@ function boardAfterClicked(board, row, column, curTurn) {
                 // make the next move
                 var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
                 // display next board
-                console.log("line 831");
                 nextBoard.displayPieces();
                 // call minimax
                 var cur = minimax(nextBoard, true, depth+1, nextTurn, nextMove);
@@ -836,9 +834,6 @@ function boardAfterClicked(board, row, column, curTurn) {
                 moves[n].score = cur;
                 if (cur < lowest) {
                     lowest = cur;
-                    console.log("next Row: " + nextRow + " next Col: " + nextCol);
-                    nextMove[0] = moves[n].i;
-                    nextMove[1] = moves[n].j;
                 }
 
             }
