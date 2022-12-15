@@ -643,7 +643,6 @@ function clickedBoard(row, column) {
                     var c = nextMove[1];
                     if (r != -1 && c != -1) {
                         console.log("Bot flipping " + r + " " + c);
-//
                         // Display curBoard's pieces
                         console.log("line 627");
                         curBoard.displayPieces();
@@ -853,7 +852,7 @@ function boardAfterClicked(board, row, column, curTurn) {
 // Returns a copy the board we are judging
 function copyBoard(p) {
     var newPieces = copyPieces(p.pieces);
-    //var newMoveBoard = copyMoves(p.move);
+    var newMoveBoard = copyMoves(p.move);
     var newBoard = new Board();
     newBoard.setPieces(newPieces);
     newBoard.setMoves(newMoveBoard);
