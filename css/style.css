@@ -31,9 +31,6 @@
     background-color: blanchedalmond;
 }
 
-#skip_btn {
-    display: none;
-}
 
 .score {
     display: flex;
