@@ -410,10 +410,10 @@ class Board {
         //var opponnent = this.turn == 1 ? 2 : 1;
 
         // check if a corner is taken by this player - wanted move
-        if (this.pieces[0][0] == turn) this.score += multi * 20;
-        if (this.pieces[0][7] == turn) this.score += multi * 20;
-        if (this.pieces[7][0] == turn) this.score += multi * 20;
-        if (this.pieces[7][0] == turn) this.score += multi * 20;
+        if (this.pieces[0][0] == turn) this.score -= multi * 20;
+        if (this.pieces[0][7] == turn) this.score -= multi * 20;
+        if (this.pieces[7][0] == turn) this.score -= multi * 20;
+        if (this.pieces[7][0] == turn) this.score -= multi * 20;
 
         // get number of next possible moves
         this.score += multi * this.getNumberOfPossibleMoves();
@@ -460,7 +460,7 @@ skip_bot.onclick = function () {
             var nextMove = new Array(2);
             var nextScore = minimax(s, true, 0, curBoard.turn, nextMove);
             console.log("next Score: " + nextScore);
-
+            console.log("curTurn: " + curBoard.turn);
             // after minimax, we should have the next move saved in our nextMoves array
             //var n = nextMove.length;
             var r = nextMove[0];
@@ -478,7 +478,7 @@ skip_bot.onclick = function () {
             clearBoard();
             drawpieces(curBoard);
 
-        },2000);
+        },3000);
 
     }
     skip_bot.style.display = "none";
@@ -571,6 +571,8 @@ function clearBoard() {
     curBoard.clearMove();
 }
 
+
+
 //clickedBoard gives i and j position that the user clicked on the boar
 //call clearBoard to get rid of the 3s in the board and clean the div
 //and update the new board by calling drawpieces function
@@ -631,8 +633,6 @@ function clickedBoard(row, column) {
 // RP Problem: this function is actually flipping the board and show it to the screen when it's
 // supposed to return a board after a fake click
  function boardAfterClicked(board, row, column, curTurn) {
-
-
     var newBoard = copyBoard(board);
     if (curTurn == 1) { //white
         newBoard.pieces[row][column] = 1;
@@ -724,15 +724,16 @@ function clickedBoard(row, column) {
                 // display next board
                 nextBoard.displayPieces();
                 // forces take a move if it is a corner and player is White
-                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j))
-                {
-                    console.log("Got to the forced take");
-                    nextMove[0] = moves[n].i;
-                    nextMove[1] = moves[n].j;
-                    return 10000;
-                }
+                // if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j) && depth==1)
+                // {
+                //     console.log("Got to the forced take");
+                //     nextMove[0] = moves[n].i;
+                //     nextMove[1] = moves[n].j;
+                //     return 10000;
+                // }
                 // forces skip if it's a bad move
-                else if (curTurn == 1 && checkBadMove(moves[n].i, moves[n].j))
+                //else
+                if (curTurn == 1 && checkBadMove(moves[n].i, moves[n].j) && moves.length > 1)
                 {
                     console.log("Got to the bad move");
                     continue;
@@ -781,13 +782,13 @@ function clickedBoard(row, column) {
             for (var n = 0; n < moves.length; n++) {
 
                 // forces take a move if it is a corner and player is White
-                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j))
-                {
-                    console.log("Got to the forced take at minimizer.");
-                    nextMove[0] = moves[n].i;
-                    nextMove[1] = moves[n].j;
-                    return -10000;
-                }
+                // if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j))
+                // {
+                //     console.log("Got to the forced take at minimizer.");
+                //     nextMove[0] = moves[n].i;
+                //     nextMove[1] = moves[n].j;
+                //     return -10000;
+                // }
                 model = copyBoard(s);
                 // make the next move
                 var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
