@@ -57,6 +57,7 @@ class Board {
         // game we are at to use the correct evaluation function
         // for our MiniMax Algorithm.
         this.turn = 2;
+        this.is_max = {max: false};
     }
     clearMove() {
         this.move = [
@@ -69,6 +70,20 @@ class Board {
             [[], [], [], [], [], [], [], []],
             [[], [], [], [], [], [], [], []],
         ]
+    }
+    // where do we call clearBoard
+    //clear all of the div that we rendered on the board with the class name "piece"
+    clearBoard() {
+        const elements = document.getElementsByClassName("piece");
+        while (elements.length > 0) {
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+        for (var i = 0; i < 8; i++) {
+            for (var j = 0; j < 8; j++) {
+                if (this.pieces[i][j] == 3) this.pieces[i][j] = 0;
+            }
+        }
+        this.clearMove();
     }
     availableBoard() {
         //check is the int that marks the opponent's piece
@@ -252,7 +267,7 @@ class Board {
         var direction = this.move[row][column];
         for(var i = 0; i < direction.length; i++) {
             //U flips to the downwards direction
-            if(direction[i]=== "U") {
+            if(direction[i] === "U") {
                 for(var j = row+1; j < 8; j++) {
                     if(this.pieces[j][column] != this.turn){
                         this.pieces[j][column] = this.turn;
@@ -285,7 +300,7 @@ class Board {
                 }
             }
             //L flips the rightwards direction
-            if(direction[i] == "L") {
+            if(direction[i] === "L") {
                 for(var j = column+1; j < 8; j++) {
                     if(this.pieces[row][j] != this.turn){
                         this.pieces[row][j] = this.turn;
@@ -360,12 +375,11 @@ class Board {
                 }
             }
         }
-        this.availableBoard();
     }
     //#endregion flipBoard
 
     //calculate the white and black pieces
-    calScore() {
+    calCoinParity() {
         this.black = 0;
         this.white = 0;
         for(var i = 0; i < 8; i++) {
@@ -378,21 +392,14 @@ class Board {
 
     getNumberOfPossibleMoves() {
         var s = 0;
-
-        // this is very inefficient. Please change the availableBoard() function soon.
-        //this.availableBoard();
-
-        // if at opening or mid game
-        //if (this.white + this.black <= 48) {
-            // get total playable moves
-            for (var i=0; i<8; i++) {
-                for (var j=0; j<8; j++) {
-                    if (this.pieces[i][j]==3) {
-                        s++;
-                    }
+        // get total playable moves
+        for (var i=0; i<8; i++) {
+            for (var j=0; j<8; j++) {
+                if (this.pieces[i][j]==3) {
+                    s++;
                 }
             }
-        //}
+        }
 
         return s;
     }
@@ -405,11 +412,12 @@ class Board {
     // get Evaluation Score
     getEvaluationScore() {
         // higher score is better for White
-        //var multi = this.turn == 1 ? -1 : 1;
-        var multi = 1;
-        //var opponnent = this.turn == 1 ? 2 : 1;
+        var ai = turn;
+        var opp = turn == 1 ? 2 : 1;
+        var multi = this.turn == 1 ? -1 : 1;
 
         // check if a corner is taken by this player - wanted move
+        // Corner Hunter
         if (this.pieces[0][0] == turn) this.score += multi * 20;
         if (this.pieces[0][7] == turn) this.score += multi * 20;
         if (this.pieces[7][0] == turn) this.score += multi * 20;
@@ -418,6 +426,17 @@ class Board {
         // get number of next possible moves
         this.score += multi * this.getNumberOfPossibleMoves();
 
+        // Parity
+        var aiPieces = 0;
+        var oppPieces = 0;
+        for(var i = 0; i < 8; i++) {
+            for(var j = 0; j < 8; j++){
+                if(this.pieces[i][j] === ai) aiPieces++;
+                if(this.pieces[i][j] === opp) oppPieces++;
+            }
+        }
+        this.score += Math.ceil(10 * ((aiPieces - oppPieces) / (aiPieces + oppPieces)));
+
         return this.score;
     }
 
@@ -425,6 +444,13 @@ class Board {
         this.pieces = pieces;
     }
 
+    setMoves(directions) {
+        this.move = directions;
+    }
+
+    setTurn(t) {
+        this.turn = t;
+    }
     displayPieces() {
         console.log(this.pieces);
     }
@@ -445,6 +471,9 @@ class Board {
 var gap = 5;
 var cellWidth = 60;
 var pieces_layer;
+//ai = true to play with the ai: plays with p2
+let ai = true;
+let is_max = false;
 
 //initalize the starting board
 const curBoard = new Board();
@@ -455,6 +484,20 @@ window.onload = function () {
     drawBoard();
     drawpieces(curBoard);
 }
+
+let btn_p2 = document.querySelector(".btn-p2")
+btn_p2.onclick = function() {
+    let blk_block = document.querySelector(".starting-page");
+    blk_block.style.display = "none";
+    ai = false;
+}
+
+let btn_sean = document.querySelector(".btn-sean")
+btn_sean.onclick = function() {
+    let s_p = document.querySelector(".starting-page");
+    s_p.style.display = "none";
+}
+
 
 let skip_bot = document.getElementById("skip_btn");
 skip_bot.onclick = function () {
@@ -480,26 +523,25 @@ skip_bot.onclick = function () {
 
                 // Display curBoard's pieces
                 curBoard.displayPieces();
-                //clickedBoard(r,c);
                 curBoard.pieces[r][c] = 1;
                 curBoard.flipBoard(r, c);
             }
             curBoard.turn = 2;
-            clearBoard();
+            curBoard.clearBoard();
             drawpieces(curBoard);
 
         },3000);
 
     }
     skip_bot.style.display = "none";
-    clearBoard();
+    curBoard.clearBoard();
     drawpieces(curBoard);
 }
 
 function updatescoreboard() {
     const w_score = document.getElementById("white-score");
     const b_score = document.getElementById("black-score");
-    curBoard.calScore();
+    curBoard.calCoinParity();
     w_score.textContent = curBoard.white;
     b_score.textContent = curBoard.black;
     const player = document.getElementById("turn");
@@ -568,30 +610,32 @@ function drawBoard() {
 }
 
 //clear all of the div that we rendered on the board with the class name "piece"
-function clearBoard() {
-    const elements = document.getElementsByClassName("piece");
-    while (elements.length > 0) {
-        elements[0].parentNode.removeChild(elements[0]);
-    }
-    for (var i = 0; i < 8; i++) {
-        for (var j = 0; j < 8; j++) {
-            if (curBoard.pieces[i][j] == 3) curBoard.pieces[i][j] = 0;
-        }
-    }
-    curBoard.clearMove();
-}
+// function clearBoard() {
+//     const elements = document.getElementsByClassName("piece");
+//     while (elements.length > 0) {
+//         elements[0].parentNode.removeChild(elements[0]);
+//     }
+//     for (var i = 0; i < 8; i++) {
+//         for (var j = 0; j < 8; j++) {
+//             if (curBoard.pieces[i][j] == 3) curBoard.pieces[i][j] = 0;
+//         }
+//     }
+//     curBoard.clearMove();
+// }
 
 
 
 //clickedBoard gives i and j position that the user clicked on the boar
 //call clearBoard to get rid of the 3s in the board and clean the div
 //and update the new board by calling drawpieces function
+//and update the new board by calling drawpieces function
 function clickedBoard(row, column) {
     //curBoard.played++;
-    if (curBoard.pieces[row][column] == 3) {
-        if (curBoard.turn == 1) {
+    if (curBoard.pieces[row][column] === 3) {
+        if (curBoard.turn === 1) {
             curBoard.pieces[row][column] = 1;
             curBoard.flipBoard(row, column);
+            curBoard.clearBoard();
             curBoard.turn = 2;
             //console.log("Turn: " + curBoard.turn);
         }
@@ -600,77 +644,62 @@ function clickedBoard(row, column) {
             curBoard.pieces[row][column] = 2;
             curBoard.flipBoard(row, column);
             curBoard.turn = 1;
-            clearBoard();
+            curBoard.clearBoard();
+            drawpieces(curBoard);
             drawpieces(curBoard);
             // RP: comment this if you don't the bot
-            setTimeout(function(){
-                var s = curBoard;
-                var nextMove = new Array(2);
-                var nextScore = minimax(s, true, 0, curBoard.turn, nextMove);
-                console.log("next Score: " + nextScore);
+            if(ai) {
+                setTimeout(function(){
+                    var s = curBoard;
+                    var nextMove = new Array(2);
+                    var nextScore = minimax(s, true, 0, curBoard.turn, nextMove);
+                    console.log("next Score: " + nextScore);
 
-                // after minimax, we should have the next move saved in our nextMoves array
-                //var n = nextMoves.length;
-                var r = nextMove[0];
-                var c = nextMove[1];
-                if (r != -1 && c != -1) {
-                    console.log("Bot flipping " + r + " " + c);
+                    // after minimax, we should have the next move saved in our nextMoves array
+                    //var n = nextMoves.length;
+                    var r = nextMove[0];
+                    var c = nextMove[1];
+                    if (r != -1 && c != -1) {
+                        console.log("Bot flipping " + r + " " + c);
+                        // Display curBoard's pieces
+                        curBoard.displayPieces();
+                        //clickedBoard(r,c);
+                        curBoard.pieces[r][c] = 1;
+                        curBoard.flipBoard(r, c);
+                    }
+                    // //curBoard.turn = 1;
+                    curBoard.turn = 2;
+                    curBoard.clearBoard();
+                    drawpieces(curBoard);
 
-                    // Display curBoard's pieces
-                    curBoard.displayPieces();
-                    //clickedBoard(r,c);
-                    curBoard.pieces[r][c] = 1;
-                    curBoard.flipBoard(r, c);
-                }
-                // //curBoard.turn = 1;
-                curBoard.turn = 2;
-                clearBoard();
-                drawpieces(curBoard);
-
-            },500);
+                },500);
+            }
         }
     }
-    clearBoard();
+    curBoard.clearBoard();
     drawpieces(curBoard);
-}
-
-// function responsible for trying to perform a move for a player
-function nextPlayer(brd, previous) {
-    const opp = opponent(previous);
-
-    // if the current player's opponent has
-    // available moves, next turn is his
-    if(hasAvailableMoves(opp, brd)) return opp;
-    // otherwise, if the current player is still
-    // has available moves, next turn is his
-    if(hasAvailableMoves(previous, brd)) return previous;
-    // if no player has moves, game over
-    return null;
 }
 //****************************-End Rendering-************************************* */
 //****************************-Minimax algorithm Starts Here-************************************* */
 
-// returns the board after a move at [row,column]
-// RP Problem: this function is actually flipping the board and show it to the screen when it's
-// supposed to return a board after a fake click
- function boardAfterClicked(board, row, column, curTurn) {
+function boardAfterClicked(board, row, column, curTurn) {
     var newBoard = copyBoard(board);
-    newBoard.availableBoard();
-    if (curTurn == 1) { //white
+    if (curTurn == 1 && newBoard.pieces[row][column] === 3) { //white
         newBoard.pieces[row][column] = 1;
         newBoard.flipBoard(row, column);
-        //curturn = 2;
+        newBoard.clearBoard();
+        newBoard.availableBoard();
+        newBoard.turn = 2;
+        //curTurn = 2;
     }
-    else if (curTurn == 2) { //black
+    else if (curTurn == 2 && newBoard.pieces[row][column] === 3) { //black
         newBoard.pieces[row][column] = 2;
         newBoard.flipBoard(row, column);
+        newBoard.clearBoard();
+        newBoard.availableBoard();
+        newBoard.turn = 1;
         //curTurn = 1;
     }
-    newBoard.removePossibleMoves();
-
-    // Display board after clicked
-    console.log("Board After Clicked:");
-    newBoard.displayPieces();
     return newBoard;
 }
 
@@ -684,8 +713,11 @@ function nextPlayer(brd, previous) {
         for (var j=0; j<8; j++) {
             // for each possible next move, represented by number 3
             if (boardCopy[i][j] === 3) {
-                //console.log("here:"+ i + " " + j);
-                moves.push({i: i, j: j, avoid: false});
+                if (checkBadMove(i,j))
+                {
+                    moves.push({i: i, j: j, avoid: true, score: 0, wanted: false});
+                }
+                else moves.push({i: i, j: j, avoid: false, score: 0, wanted: false});
             }
         }
     }
@@ -697,14 +729,13 @@ function nextPlayer(brd, previous) {
 // Pay attention to the case when a user skips
  function minimax(s, is_max, depth, curTurn, nextMove){
     var nextTurn = curTurn == 1 ? 2 : 1;
-
     var moves = possibleMoves(s.pieces);
     var model, count;
 
     console.log("possible next boards: " + moves.length);
 
     // increase to 6 after things work
-    if(depth == 2 || moves.length === 0) {
+    if(depth === 4 || moves.length === 0) {
         console.log("score " + s.getEvaluationScore());
         return s.getEvaluationScore();
     }
@@ -712,26 +743,23 @@ function nextPlayer(brd, previous) {
     if(is_max == true) {
         console.log("was in maximizer at depth " + depth);
         var highest = -100000;
-        var nextRow = 0;
-        var nextCol = 0;
 
         // if there's no next move, means we are skipping this move
         // increase depth by one, change turns
-        // if (moves.length===0) {
-        //     // if no next move
-        //     if (depth === 0)
-        //     {
-        //         console.log(" no move for bot");
-        //         nextMove[0] = -1;
-        //         nextMove[1] = -1;
-        //         return 1000;
-        //     }
-        //     var cur = minimax(s, false, depth+1, nextTurn, nextMove);
-        //     if (cur>highest) {
-        //         highest = cur;
-        //         //nextMoves.push({i: -1, j: -1});
-        //     }
-        // }
+        if (moves.length===0) {
+            // if no next move
+            if (depth === 0)
+            {
+                console.log("no move for bot");
+                // nextMove[0] = -1;
+                // nextMove[1] = -1;
+                return 0;
+            }
+            var cur = minimax(s, false, depth+1, nextTurn, nextMove);
+            if (cur>highest) {
+                highest = cur;
+            }
+        }
         // if there are multiple next moves, we evaluate each of them
         // by making the "fake" moves, get evaluation score of that next board,
         // save it in the move data structure.
@@ -741,6 +769,7 @@ function nextPlayer(brd, previous) {
             for (var n = 0; n < moves.length; n++) {
                 model = copyBoard(s);
 
+                console.log(" clicking " + moves[n].i + " " +  moves[n].j);
                 // make the next move
                 model.displayPieces();
                 console.log("Testing the move " + moves[n].i + " " + moves[n].j);
@@ -749,7 +778,7 @@ function nextPlayer(brd, previous) {
                 // display next board
 
                 // forces take a move if it is a corner and player is White
-                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j) && depth==0)
+                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j) && depth===0)
                 {
                     console.log("Got to the forced take");
                     nextMove[0] = moves[n].i;
@@ -757,8 +786,7 @@ function nextPlayer(brd, previous) {
                     return 10000;
                 }
                 // forces skip if it's a bad move
-                //else
-                if (curTurn == 1 && checkBadMove(moves[n].i, moves[n].j) && moves.length > 1)
+                else if (checkBadMove(moves[n].i, moves[n].j) && moves.length > 0)
                 {
                     console.log("Got to the bad move");
                     continue;
@@ -769,12 +797,10 @@ function nextPlayer(brd, previous) {
                     console.log("value at depth " + depth + "is " + cur + "\n");
                     if (cur > highest) {
                         highest = cur;
-                        console.log("next Row: " + nextRow + " next Col: " + nextCol);
                         if (depth == 0) {
                             nextMove[0] = moves[n].i;
                             nextMove[1] = moves[n].j;
                         }
-
                     }
                 }
 
@@ -810,26 +836,32 @@ function nextPlayer(brd, previous) {
             for (var n = 0; n < moves.length; n++) {
 
                 // forces take a move if it is a corner and player is White
-                // if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j))
-                // {
-                //     console.log("Got to the forced take at minimizer.");
-                //     nextMove[0] = moves[n].i;
-                //     nextMove[1] = moves[n].j;
-                //     return -10000;
-                // }
-                model = copyBoard(s);
-                // make the next move
-                var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
-                // display next board
-                nextBoard.displayPieces();
-                // call minimax
-                var cur = minimax(nextBoard, true, depth+1, nextTurn, nextMove);
-                if (cur < lowest) {
-                    lowest = cur;
-                    console.log("next Row: " + nextRow + " next Col: " + nextCol);
-                    if (depth == 0) {
-                        nextMove[0] = moves[n].i;
-                        nextMove[1] = moves[n].j;
+                if (curTurn == 1 && checkWantedMove(moves[n].i, moves[n].j))
+                {
+                    console.log("Got to the forced take at minimizer.");
+                    nextMove[0] = moves[n].i;
+                    nextMove[1] = moves[n].j;
+                    return -10000;
+                }
+                // forces skip if it's a bad move
+                else if (checkBadMove(moves[n].i, moves[n].j) && moves.length > 0)
+                {
+                    console.log("Got to the bad move");
+                    continue;
+                }
+                else {
+                    model = copyBoard(s);
+                    // make the next move
+                    var nextBoard = boardAfterClicked(model, moves[n].i, moves[n].j, curTurn);
+                    // display next board
+                    nextBoard.displayPieces();
+                    // call minimax
+                    var cur = minimax(nextBoard, true, depth+1, nextTurn, nextMove);
+
+                    // get the score for
+                    moves[n].score = cur;
+                    if (cur < lowest) {
+                        lowest = cur;
                     }
                 }
 
@@ -840,14 +872,24 @@ function nextPlayer(brd, previous) {
     }
 }
 
+
 // Returns a copy the board we are judging
 function copyBoard(p) {
     var newPieces = copyPieces(p.pieces);
+    var newMoveBoard = copyMoves(p.move);
     var newBoard = new Board();
     newBoard.setPieces(newPieces);
+    newBoard.setMoves(newMoveBoard);
+    if(p.turn !== 2) {
+        newBoard.setTurn(2);
+    }
+    else {
+        newBoard.setTurn(1);
+    }
     return newBoard;
 }
 
+//copyPieces returns the board from the Board class;
 function copyPieces(p) {
     var newPieces = new Array(8);
     for (var i = 0; i < 8; i++) {
@@ -860,13 +902,25 @@ function copyPieces(p) {
 }
 
 
+//copy moves copies the move board from the class of Board
+function copyMoves(p) {
+    var newMoves = new Array(8);
+    for(var i = 0; i < 8; i++) {
+        newMoves[i] = new Array(8);
+       for(var j = 0; j < 8; j++) {
+        newMoves[i][j] = p[i][j];
+       }
+    }
+    return newMoves;
+}
+
 // check for near-corner moves -- moves we don't want
 function checkBadMove(i, j){
     if ((i==1 && j==1) || (i==1 && j==6) || (i==6 && j==1) || (i==6 && j==6))
         return true;
     return false;
 }
-
+``
 // check for corner moves -- moves we want
 function checkWantedMove(i, j) {
     if ((i==0 && j==0) || (i==0 && j==7) || (i==7 && j==0) || (i==7 && j==7))
@@ -874,23 +928,3 @@ function checkWantedMove(i, j) {
     return false;
 }
 
-
-// better score means better for white
-// function moveSort(move1, move2) {
-//     if (move1.evaluationScore < move2.evaluationScore)
-//         return 1;
-//     else if (move1.evaluationScore > move2.evaluationScore)
-//         return -1;
-//     else {
-//         // central judging --
-//         if (move1.i < move2.i)
-//             return -1;
-//         if (move1.i > move2.i)
-//             return 1;
-//         if (move1.j < move2.j)
-//             return -1;
-//         if (move1.j > move2.j)
-//             return 1;
-//         return 0;
-//     }
-// }
